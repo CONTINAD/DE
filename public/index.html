@@ -426,11 +426,11 @@
   .dashbar .stat .k{font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;color:#cfe0fb}
   .dashbar .stat .v{font-family:'JetBrains Mono';font-weight:800;font-size:20px;margin-top:6px}.dashbar .stat .v small{font-size:10px;color:#cfe0fb}
 
-  .dash{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:stretch}
+  .dash{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:start}
   @media(max-width:940px){.dash{grid-template-columns:1fr}}
   .dash .chartwrap{margin:0}
   .dash .console{display:flex;flex-direction:column}
-  .dash .console__body{flex:1;min-height:300px;height:auto}
+  .dash .console__body{flex:1;min-height:0;height:398px;max-height:398px;overflow:auto}
 
   /* ── header polish + pump.fun badge ──────────────────────────── */
   .brand{cursor:pointer}
