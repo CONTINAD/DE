@@ -1,0 +1,1112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>$DELL — the machine pays you back in Dell</title>
+<meta name="description" content="Hold $DELL. Every 5 minutes the machine claims fees, buys real tokenized Dell (DELL) stock, and airdrops it to every holder. One stock. All Dell." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f2eee1; --paper2:#e9e3d2; --card:#fbf8ef;
+    --ink:#111110; --ink2:#3a3a36;
+    --blue:#0a5fd6; --blue-d:#063f96; --blue-l:#cfe0fb;
+    --yellow:#ffd400; --yellow-l:#fff1a8;
+    --up:#0a8f43; --down:#e23b2e;
+    --bd:3px solid var(--ink);
+    --sh:6px 6px 0 var(--ink); --sh-sm:4px 4px 0 var(--ink); --sh-lg:10px 10px 0 var(--ink);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Space Grotesk',system-ui,sans-serif;color:var(--ink);background:var(--paper);min-height:100vh;overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(var(--paper2) 1.4px,transparent 1.4px);background-size:22px 22px;
+  }
+  #bgCanvas{display:none}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--yellow);color:var(--ink)}
+  *:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important}}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .disp{font-family:'Archivo',sans-serif}
+
+  .box{background:var(--card);border:var(--bd);box-shadow:var(--sh)}
+  .box:hover{}
+  h1,h2,h3{margin:0}
+
+  /* ── marquee top ─────────────────────────────────────────────── */
+  .marquee{background:var(--ink);color:var(--yellow);overflow:hidden;border-bottom:var(--bd)}
+  .marquee .track{display:flex;width:max-content;padding:7px 0;animation:scroll 40s linear infinite;white-space:nowrap}
+  .marquee:hover .track{animation-play-state:paused}
+  .marquee .it{display:inline-flex;gap:8px;align-items:center;padding:0 20px;font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:500;color:#fff7d6;border-right:2px solid rgba(255,255,255,.18)}
+  .marquee .it b{color:var(--yellow);font-weight:800}
+  .marquee .it .px{color:#fff;font-weight:700}
+  .marquee .it .up{color:#7CFFB0} .marquee .it .dn{color:#ff8f86}
+  .marquee .it .sep{opacity:.5;margin:0 3px}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ── header ──────────────────────────────────────────────────── */
+  .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;padding:14px 26px;
+    background:var(--paper);border-bottom:var(--bd)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .dcoin{width:46px;height:46px;border:var(--bd);background:var(--blue);box-shadow:var(--sh-sm);display:flex;align-items:center;justify-content:center;flex:none;transform:rotate(-4deg);transition:.18s}
+  .dcoin:hover{transform:rotate(0)}
+  .dcoin .demblem{width:78%;height:78%;color:#fff}
+  .wordmark{font-family:'Archivo';font-weight:900;font-size:24px;letter-spacing:-.02em;color:var(--ink)}
+  .wordmark .b{color:var(--blue)}
+  .nav{display:flex;gap:8px;align-items:center;margin-left:auto}
+  .nav a.lnk{font-weight:700;font-size:13px;padding:9px 13px;border:var(--bd);background:var(--card);box-shadow:var(--sh-sm);transition:.12s}
+  .nav a.lnk:hover{background:var(--yellow);transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+  .nav a.lnk:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+  .iconbtn{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:var(--bd);background:var(--card);box-shadow:var(--sh-sm);font-size:15px;font-weight:800;transition:.12s}
+  .iconbtn:hover{background:var(--yellow);transform:translate(-1px,-1px)}
+  .live{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:var(--bd);background:var(--card);box-shadow:var(--sh-sm);font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .live .dot{width:9px;height:9px;border-radius:50%;background:var(--up);border:2px solid var(--ink);animation:blink 1.2s steps(1) infinite}
+  .live .dot.amber{background:var(--yellow)}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  @media(max-width:820px){.nav .hideSm{display:none}}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:12px 20px;border:var(--bd);font-weight:800;font-size:14px;cursor:pointer;
+    background:var(--card);color:var(--ink);box-shadow:var(--sh);transition:.12s;font-family:'Space Grotesk'}
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink)}
+  .btn:active{transform:translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}
+  .btn.blue{background:var(--blue);color:#fff}
+  .btn.yellow{background:var(--yellow)}
+  .btn .pf{font-size:15px}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 24px 110px}
+
+  /* ── hero ────────────────────────────────────────────────────── */
+  .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;margin-bottom:20px}
+  @media(max-width:960px){.hero{grid-template-columns:1fr;gap:26px}}
+  .tagsticker{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:12.5px;padding:7px 13px;border:var(--bd);
+    background:var(--yellow);box-shadow:var(--sh-sm);transform:rotate(-2deg);margin-bottom:22px}
+  .tagsticker .dot{width:8px;height:8px;border-radius:50%;background:var(--up);border:2px solid var(--ink)}
+  h1.title{font-family:'Archivo';font-weight:900;font-size:clamp(46px,7vw,90px);line-height:.92;letter-spacing:-.04em;text-transform:uppercase}
+  h1.title .hl{background:var(--blue);color:#fff;padding:0 .12em;box-decoration-break:clone;-webkit-box-decoration-break:clone;box-shadow:var(--sh-sm)}
+  h1.title .hl.y{background:var(--yellow);color:var(--ink)}
+  .lede{margin:26px 0 0;max-width:540px;font-size:16.5px;line-height:1.55;font-weight:500;color:var(--ink2)}
+  .lede b{color:var(--ink);background:var(--yellow-l);padding:0 3px;font-weight:700}
+  .hero-cta{margin-top:28px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .ca{display:inline-flex;align-items:center;gap:10px;padding:11px 14px;border:var(--bd);background:var(--card);box-shadow:var(--sh-sm);
+    font-family:'JetBrains Mono';font-size:12.5px;cursor:pointer;transition:.12s}
+  .ca:hover{background:var(--yellow)} .ca.copied{background:var(--blue);color:#fff}
+  .ca .lab{font-family:'Space Grotesk';font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:var(--blue)}
+  .ca.copied .lab{color:#fff}
+
+  /* hero coin + orbit */
+  .orbit-stage{position:relative;width:min(100%,440px);aspect-ratio:1;margin:0 auto;display:flex;align-items:center;justify-content:center}
+  .core{position:relative;z-index:3;width:42%;aspect-ratio:1;border:var(--bd);background:var(--blue);box-shadow:var(--sh-lg);
+    display:flex;align-items:center;justify-content:center;transform:rotate(-6deg);animation:bob 5s ease-in-out infinite}
+  .core .demblem{width:74%;height:74%;color:#fff}
+  @keyframes bob{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(-6deg) translateY(-10px)}}
+  .orbit{position:absolute;inset:0;z-index:2;animation:spin 44s linear infinite}
+  .orbit.rev{animation:spin 60s linear infinite reverse}
+  .o-item{position:absolute;top:50%;left:50%;width:0;height:0}
+  .o-spin{position:absolute;animation:spinrev 44s linear infinite}
+  .orbit.rev .o-spin{animation:spin 60s linear infinite}
+  .o-ic{width:54px;height:54px;transform:translate(-50%,-50%) rotate(-6deg)}
+  .o-ic.sm{width:42px;height:42px}
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  @keyframes spinrev{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
+  @media(max-width:520px){.orbit-stage{width:320px}.o-ic{width:44px;height:44px}.o-ic.sm{width:34px;height:34px}}
+
+  /* emblem tiles (used across UI) */
+  .lgw{display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;border:var(--bd);background:var(--blue);box-shadow:var(--sh-sm)}
+  .lgw .demblem{width:74%;height:74%;color:#fff}
+  .demblem svg{width:100%;height:100%;display:block}
+
+  /* ── terminal row ────────────────────────────────────────────── */
+  .terminal{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px;margin:30px 0 8px}
+  @media(max-width:860px){.terminal{grid-template-columns:1fr}}
+  .tcell{padding:22px;background:var(--card);border:var(--bd);box-shadow:var(--sh)}
+  .tcell.b1{background:var(--yellow-l)}
+  .tlabel{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--ink2);display:flex;align-items:center;gap:8px}
+  .tlabel .dot{width:8px;height:8px;border-radius:50%;background:var(--up);border:2px solid var(--ink)}
+  .count{display:flex;align-items:center;gap:5px;margin:14px 0 4px;font-family:'JetBrains Mono',monospace}
+  .count .digit{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:62px;border:var(--bd);background:var(--ink);color:var(--yellow);
+    font-weight:800;font-size:42px;box-shadow:var(--sh-sm)}
+  .count .colon{font-weight:800;font-size:30px;color:var(--ink)}
+  .count .cword{font-family:'Archivo';font-weight:900;font-size:40px;color:var(--blue);letter-spacing:-.02em}
+  .count.soon .digit{background:var(--blue);color:#fff}
+  .pbar{margin-top:14px;height:14px;border:var(--bd);background:var(--card);overflow:hidden}
+  .pbar>i{display:block;height:100%;width:0;background:var(--blue);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.25) 0 6px,transparent 6px 12px);transition:width .9s linear}
+  .dispNote{margin-top:10px;font-size:12px;font-family:'JetBrains Mono';min-height:15px;font-weight:500}
+  .dispNote b{font-weight:800}
+  .dispNote.warm{color:var(--up);font-weight:700}
+  .stocknow{display:flex;align-items:center;gap:14px;margin-top:12px}
+  .nowlogo{width:60px;height:60px}
+  .nowlogo.lit{animation:wob 2.2s ease-in-out infinite}
+  @keyframes wob{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  .stocknow .meta .tk{font-family:'Archivo';font-weight:900;font-size:24px}
+  .stocknow .meta .nm{font-size:12px;font-weight:500;color:var(--ink2);margin-top:2px}
+  .ca-row{margin-top:16px}
+
+  /* ── section heads ───────────────────────────────────────────── */
+  .sec{margin:56px 0 20px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+  .sec .t{font-family:'Archivo';font-weight:900;font-size:30px;letter-spacing:-.03em;text-transform:uppercase}
+  .sec .t b{color:var(--blue)}
+  .sec .t .ybox{background:var(--yellow);padding:0 .14em;box-shadow:var(--sh-sm);border:var(--bd);display:inline-block;transform:rotate(-1.5deg)}
+  .sec .s{font-size:13px;font-weight:600;color:var(--ink2)}
+
+  /* ── chart ───────────────────────────────────────────────────── */
+  .chartwrap{padding:22px 24px}
+  .chart-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+  .chart-px{display:flex;align-items:baseline;gap:12px}
+  .chart-px .v{font-family:'Archivo';font-weight:900;font-size:42px;letter-spacing:-.03em;border-radius:3px;transition:color .35s,background .35s}
+  .chart-px .v.tickup{animation:pxUp .55s ease-out}
+  .chart-px .v.tickdn{animation:pxDn .55s ease-out}
+  @keyframes pxUp{0%{color:var(--up);background:rgba(10,143,67,.18)}100%{color:var(--ink);background:transparent}}
+  @keyframes pxDn{0%{color:var(--down);background:rgba(226,59,46,.18)}100%{color:var(--ink);background:transparent}}
+  .chart-px .chg{font-family:'JetBrains Mono';font-weight:800;font-size:14px;padding:5px 10px;border:var(--bd);box-shadow:var(--sh-sm)}
+  .chart-px .chg.up{background:var(--up);color:#fff} .chart-px .chg.dn{background:var(--down);color:#fff}
+  .chart-tabs{display:inline-flex;gap:6px}
+  .chart-tabs button{border:var(--bd);background:var(--card);font:inherit;font-weight:800;font-size:12.5px;padding:8px 13px;cursor:pointer;box-shadow:var(--sh-sm);transition:.12s}
+  .chart-tabs button:hover{background:var(--yellow)}
+  .chart-tabs button.on{background:var(--blue);color:#fff}
+  .chartbox{position:relative;height:300px;margin-top:14px;border:var(--bd);background:repeating-linear-gradient(0deg,transparent 0 38px,rgba(17,17,16,.05) 38px 39px)}
+  #dellChart{width:100%;height:100%;display:block;cursor:crosshair}
+  .chart-tip{position:absolute;top:10px;left:0;transform:translateX(-50%);pointer-events:none;opacity:0;transition:opacity .1s;background:var(--ink);color:#fff;border:2px solid var(--yellow);box-shadow:3px 3px 0 var(--blue);padding:5px 9px;font-family:'JetBrains Mono';font-size:11.5px;font-weight:800;white-space:nowrap;z-index:3}
+  .chart-tip b{color:var(--yellow)} .chart-tip .tip-t{color:#b9b9b6;font-weight:600;margin-left:6px}
+  .chart-tip.on{opacity:1}
+  .chart-cross{position:absolute;top:0;bottom:0;width:2px;background:repeating-linear-gradient(0deg,var(--ink) 0 5px,transparent 5px 9px);pointer-events:none;opacity:0;transition:opacity .1s;z-index:2}
+  .chart-cross.on{opacity:.8}
+  .chart-axis{display:flex;justify-content:space-between;margin-top:10px;font-family:'JetBrains Mono';font-size:11px;font-weight:600;color:var(--ink2)}
+
+  /* ── how it works ────────────────────────────────────────────── */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:820px){.steps{grid-template-columns:1fr}}
+  .step{padding:24px;background:var(--card);border:var(--bd);box-shadow:var(--sh);transition:.16s}
+  .step:nth-child(2){background:var(--blue-l)}
+  .step:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--ink)}
+  .step .num{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border:var(--bd);
+    font-family:'Archivo';font-weight:900;font-size:22px;color:#fff;background:var(--ink);box-shadow:var(--sh-sm)}
+  .step:nth-child(1) .num{background:var(--blue)} .step:nth-child(3) .num{background:var(--up)}
+  .step .st-t{margin-top:16px;font-family:'Archivo';font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:-.01em}
+  .step .st-d{margin-top:9px;font-size:14px;line-height:1.6;font-weight:500;color:var(--ink2)}
+  .step .st-d b{color:var(--ink);font-weight:700}
+
+  /* ── checker ─────────────────────────────────────────────────── */
+  .checkwrap{padding:22px}
+  .checkbar{display:flex;gap:12px;flex-wrap:wrap}
+  .addrIn{flex:1;min-width:240px;padding:14px 16px;border:var(--bd);background:#fff;color:var(--ink);
+    font-family:'JetBrains Mono';font-size:13px;outline:none;box-shadow:inset 3px 3px 0 rgba(17,17,16,.06)}
+  .addrIn::placeholder{color:#9a958a}
+  .checkres{display:none}
+  .checkres.show{display:block;margin-top:20px;border-top:var(--bd);padding-top:20px;animation:pop .3s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .cr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .cr-addr{font-family:'JetBrains Mono';font-size:12.5px;color:var(--ink2);display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .cr-copy{cursor:pointer;font-size:9px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--ink);padding:4px 8px;font-weight:800}
+  .cr-copy.copied{background:var(--blue);color:#fff}
+  .cr-tot{font-family:'Archivo';font-weight:900;font-size:34px;line-height:1}
+  .cr-tot small{font-family:'Space Grotesk';font-size:13px;color:var(--ink2);font-weight:600}
+  .cr-q{font-size:12px;text-align:right;font-weight:600;color:var(--ink2)}
+  .cr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+  .cr-cell{display:flex;align-items:center;gap:11px;padding:12px;border:var(--bd);background:var(--card);box-shadow:var(--sh-sm)}
+  .cr-cell .lgw{width:38px;height:38px}
+  .cr-cell .tk{font-weight:800;font-size:12px}
+  .cr-cell .sh{font-family:'JetBrains Mono';font-size:15px;font-weight:800}
+  .cr-cell .sl{font-size:10px;color:var(--ink2);font-weight:500}
+  .cr-empty{padding:18px;text-align:center;color:var(--ink2);font-size:13px;font-weight:600}
+  .qbadge{display:inline-block;font-size:9.5px;letter-spacing:.03em;text-transform:uppercase;padding:4px 9px;border:2px solid var(--ink);font-weight:800;background:var(--up);color:#fff}
+  .qbadge.no{background:var(--paper2);color:var(--ink2)}
+
+  /* ── drop rail ───────────────────────────────────────────────── */
+  .rail{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+  @media(max-width:1100px){.rail{grid-template-columns:repeat(6,1fr)}}
+  @media(max-width:560px){.rail{grid-template-columns:repeat(4,1fr)}}
+  .chip{padding:13px 8px;text-align:center;border:var(--bd);background:var(--card);box-shadow:var(--sh-sm);transition:.15s}
+  .chip:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+  .chip .lgw{width:36px;height:36px;margin:0 auto 9px}
+  .chip .tk{font-family:'JetBrains Mono';font-weight:800;font-size:13px}
+  .chip .st{font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin-top:4px;height:10px;font-weight:700}
+  .chip.now{background:var(--yellow)} .chip.now .st{color:var(--ink)}
+
+  /* ── board ───────────────────────────────────────────────────── */
+  .board{padding:30px;background:var(--blue);color:#fff;border:var(--bd);box-shadow:var(--sh-lg);position:relative;overflow:hidden}
+  .board .hd{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:#cfe0fb}
+  .board .hd .dot{width:9px;height:9px;border-radius:50%;background:var(--yellow);border:2px solid #fff;animation:blink 1.2s steps(1) infinite}
+  .bignum{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:14px}
+  .bignum .v{font-family:'Archivo';font-weight:900;font-size:clamp(56px,10vw,118px);line-height:.82;letter-spacing:-.04em;color:var(--yellow);font-variant-numeric:tabular-nums}
+  .bignum .u{font-family:'Archivo';font-weight:900;font-size:clamp(20px,2.6vw,30px)}
+  .bignum .cap{font-size:12px;font-weight:600;color:#cfe0fb;margin-left:auto}
+  .stats{margin-top:26px;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  @media(max-width:1000px){.stats{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{padding:16px;border:3px solid #fff;background:rgba(255,255,255,.08)}
+  .stats>.stat{transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
+  .stats>.stat:hover{transform:translate(-3px,-3px);box-shadow:6px 6px 0 var(--yellow);background:rgba(255,255,255,.14);cursor:default}
+  @media(prefers-reduced-motion:reduce){.stats>.stat{transition:none}.stats>.stat:hover{transform:none}}
+  .stat .k{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:#cfe0fb}
+  .stat .v{font-family:'JetBrains Mono';font-weight:800;font-size:26px;margin-top:7px;line-height:1}
+  .stat .v small{font-size:12px;color:#cfe0fb;font-weight:500}
+
+  /* ── winners ─────────────────────────────────────────────────── */
+  .winners{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:16px}
+  .ticket{padding:17px;border:var(--bd);background:var(--card);box-shadow:var(--sh);transition:.15s;animation:popin .35s ease}
+  .ticket:nth-child(3n+2){background:var(--yellow-l)} .ticket:nth-child(3n+1){background:var(--blue-l)}
+  .ticket:hover{transform:translate(-3px,-3px) rotate(-1deg);box-shadow:9px 9px 0 var(--ink)}
+  @keyframes popin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .ticket .top{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;font-weight:700;color:var(--ink2)}
+  .ticket .top .tkw{display:flex;align-items:center;gap:9px}
+  .ticket .top .lgw{width:28px;height:28px}
+  .ticket .top .tk{font-family:'JetBrains Mono';font-weight:800;font-size:13px;color:var(--ink)}
+  .ticket .amt{font-family:'Archivo';font-weight:900;font-size:30px;line-height:1;margin:12px 0 2px}
+  .ticket .amt small{font-family:'Space Grotesk';font-size:13px;color:var(--ink2);font-weight:600}
+  .ticket .amt .usd{font-family:'Space Grotesk';font-size:12px;color:var(--ink2);font-weight:600;margin-left:6px}
+  .ticket .addr{font-family:'JetBrains Mono';font-size:11px;color:var(--ink2);font-weight:500}
+  .ticket .meta{margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px;font-weight:600;color:var(--ink2)}
+  .ticket .meta a{font-weight:800;border-bottom:2px solid var(--blue)}
+  .empty{padding:30px;text-align:center;color:var(--ink2);border:3px dashed var(--ink);font-weight:600;font-size:13px}
+
+  /* ── two-col ─────────────────────────────────────────────────── */
+  .cols{display:grid;grid-template-columns:1.45fr 1fr;gap:22px;align-items:start}
+  @media(max-width:940px){.cols{grid-template-columns:1fr}}
+  .card2{border:var(--bd);background:var(--card);box-shadow:var(--sh);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);text-align:left;padding:14px 16px;border-bottom:var(--bd);font-weight:800;background:var(--paper2)}
+  td{padding:12px 16px;border-bottom:2px solid rgba(17,17,16,.1);font-size:13px;font-family:'JetBrains Mono';font-weight:500}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--yellow-l)}
+  .rank{color:var(--ink2);font-weight:800}
+  .rank.r1{color:#b8860b}.rank.r2{color:#6b6b6b}.rank.r3{color:#a05a2c}
+  .hdot{display:inline-block;width:18px;height:18px;border:2px solid var(--ink);vertical-align:middle;margin-right:10px}
+  .sharecell{display:flex;flex-direction:column;gap:6px}
+  .sbar-wrap{height:8px;border:2px solid var(--ink);background:#fff;max-width:96px;overflow:hidden}
+  .sbar{display:block;height:100%;background:var(--blue)}
+  .vaulttools{padding:13px 15px;border-bottom:var(--bd)}
+  .vfilter{width:100%;padding:11px 13px;border:var(--bd);background:#fff;color:var(--ink);font-family:'JetBrains Mono';font-size:12px;outline:none}
+  .vaultmore{padding:14px;text-align:center;border-top:var(--bd)}
+  .morebtn{cursor:pointer;background:var(--card);border:var(--bd);box-shadow:var(--sh-sm);padding:9px 18px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;transition:.12s}
+  .morebtn:hover{background:var(--yellow)}
+  .feed{max-height:560px;overflow:auto}
+  .ev{display:flex;gap:11px;padding:12px 16px;border-bottom:2px solid rgba(17,17,16,.1);font-size:12.5px;align-items:center}
+  .ev:last-child{border-bottom:none}
+  .evic{flex:none;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;border:var(--bd);background:var(--card)}
+  .ev .tx{flex:1;font-weight:500} .ev .tx a{font-weight:800;border-bottom:2px solid var(--blue)}
+  .ev .ts{flex:none;font-family:'JetBrains Mono';font-size:10px;color:var(--ink2);font-weight:600}
+  .ev.claim .evic{background:var(--yellow)} .ev.swap .evic{background:var(--blue-l)} .ev.dispense .evic{background:var(--up);color:#fff}
+
+  footer{margin-top:60px;text-align:center;font-size:11.5px;line-height:1.8;color:var(--ink2);font-weight:500}
+  footer .fl{display:inline-block;margin-bottom:16px;border:var(--bd);background:var(--ink);color:var(--yellow);padding:10px 18px;font-weight:800;box-shadow:var(--sh-sm)}
+  footer .dis{max-width:840px;margin:12px auto 0}
+  footer .dis b{color:var(--ink);font-weight:700}
+
+  /* ── toast / flash / rain ────────────────────────────────────── */
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(22px);z-index:60;padding:13px 22px;
+    border:var(--bd);background:var(--yellow);color:var(--ink);font-weight:800;font-size:13px;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:.25s}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .flash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .25s}
+  .flash.show{opacity:1}
+  .flash .card2f{padding:34px 50px;text-align:center;background:var(--card);border:5px solid var(--ink);box-shadow:14px 14px 0 var(--blue);transform:rotate(-2deg)}
+  .flash .card2f .lgw{width:80px;height:80px;margin:0 auto 14px}
+  .flash .lab{font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+  .flash .big{font-family:'Archivo';font-weight:900;font-size:58px;line-height:1;margin:8px 0}
+  .flash .big small{font-size:24px;color:var(--ink2)}
+  .flash .sub{font-size:13px;font-weight:600;color:var(--ink2)}
+  #rain{position:fixed;inset:0;z-index:49;pointer-events:none;overflow:hidden}
+  .drop{position:absolute;top:-60px;opacity:0;display:flex;align-items:center;justify-content:center;border:var(--bd);background:var(--blue)}
+  .drop .demblem{width:72%;height:72%;color:#fff}
+  @keyframes fall{0%{opacity:0;transform:translateY(-60px) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translateY(108vh) rotate(var(--r))}}
+
+  @media(max-width:900px){.wrap{padding:30px 16px 90px}.topbar{padding:12px 16px;flex-wrap:wrap}}
+  @media(max-width:560px){h1.title{font-size:42px}.bignum .v{font-size:58px}.sec .t{font-size:24px}}
+
+  /* ── earnings calculator ─────────────────────────────────────── */
+  .calcwrap{padding:24px}
+  .calc-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:26px}
+  @media(max-width:820px){.calc-grid{grid-template-columns:1fr}}
+  .calc-lab{font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--ink2)}
+  .calc-bagrow{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .bagIn{flex:1;min-width:0;font-family:'JetBrains Mono';font-weight:800;font-size:24px;background:#fff;border:var(--bd);box-shadow:inset 3px 3px 0 rgba(17,17,16,.06);padding:12px 14px;outline:none;color:var(--ink)}
+  .bagunit{font-family:'Archivo';font-weight:900;font-size:15px}
+  .bagSlider{width:100%;margin-top:18px;-webkit-appearance:none;appearance:none;height:14px;background:var(--yellow-l);border:var(--bd);box-shadow:var(--sh-sm)}
+  .bagSlider::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;background:var(--blue);border:var(--bd);box-shadow:var(--sh-sm);cursor:pointer}
+  .bagSlider::-moz-range-thumb{width:24px;height:24px;background:var(--blue);border:var(--bd);cursor:pointer}
+  .calc-presets{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .preset{font-family:'JetBrains Mono';font-weight:800;font-size:12px;padding:8px 12px;border:var(--bd);background:var(--card);box-shadow:var(--sh-sm);cursor:pointer;transition:.12s}
+  .preset:hover{background:var(--yellow);transform:translate(-1px,-1px)}.preset.on{background:var(--blue);color:#fff}
+  .calc-note{margin-top:16px;font-size:12.5px;font-weight:600;color:var(--ink2)}.calc-note b{color:var(--ink)}
+  .calc-out{border-left:var(--bd);padding-left:26px}
+  @media(max-width:820px){.calc-out{border-left:none;padding-left:0;border-top:var(--bd);padding-top:22px}}
+  .calc-share{background:var(--blue);color:#fff;border:var(--bd);box-shadow:var(--sh);padding:16px 18px}
+  .calc-share .calc-lab{color:#cfe0fb}
+  .calc-sharev{font-family:'Archivo';font-weight:900;font-size:38px;line-height:1;margin-top:6px}
+  .calc-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+  @media(max-width:520px){.calc-cards{grid-template-columns:1fr}}
+  .calc-card{border:var(--bd);background:var(--card);box-shadow:var(--sh-sm);padding:14px}
+  .calc-card.hl{background:var(--yellow)}
+  .cc-k{font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:800;color:var(--ink2)}
+  .cc-v{font-family:'Archivo';font-weight:900;font-size:22px;margin-top:8px;line-height:1}
+  .cc-u{font-family:'JetBrains Mono';font-size:11px;color:var(--ink2);margin-top:5px;font-weight:600}
+  .calc-mile{display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;border:var(--bd);background:#fff;box-shadow:var(--sh-sm)}
+  .calc-mile .cm-ic{font-family:'Archivo';font-weight:900;font-size:18px;line-height:1;flex:0 0 auto;width:30px;height:30px;display:grid;place-items:center;border:var(--bd);background:var(--yellow)}
+  .calc-mile .cm-tx{font-size:12.5px;font-weight:600;color:var(--ink2);line-height:1.45}.calc-mile .cm-tx b{color:var(--ink);font-weight:900}
+  .calc-dis{font-size:11px;color:var(--ink2);margin-top:14px;line-height:1.5}
+
+  /* ── faq ─────────────────────────────────────────────────────── */
+  .faq{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media(max-width:760px){.faq{grid-template-columns:1fr}}
+  .qa{border:var(--bd);background:var(--card);box-shadow:var(--sh-sm);overflow:hidden}
+  .qa summary{list-style:none;cursor:pointer;padding:16px 18px;font-family:'Archivo';font-weight:800;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .qa summary::-webkit-details-marker{display:none}
+  .qa summary:hover{background:var(--yellow-l)}
+  .qa summary:active{transform:translateY(1px)}
+  .qa summary::after{content:"+";font-family:'JetBrains Mono';font-weight:800;font-size:20px;color:var(--blue);transition:transform .18s ease}
+  .qa[open] summary::after{content:"\2013";transform:rotate(180deg)}
+  .qa[open] summary{background:var(--yellow)}
+  .qa[open] summary:hover{background:var(--yellow)}
+  /* animated reveal: details stays open while the wrapper collapses */
+  .qa .qa-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .26s cubic-bezier(.4,0,.2,1)}
+  .qa.qa-show .qa-wrap{grid-template-rows:1fr}
+  .qa .qa-wrap>div{overflow:hidden;min-height:0}
+  .qa .qa-b{padding:2px 18px 16px;font-size:13.5px;line-height:1.62;color:var(--ink2)}.qa .qa-b b{color:var(--ink)}
+  @media(prefers-reduced-motion:reduce){.qa .qa-wrap{transition:none}}
+
+  /* ── machine console (live feed) ─────────────────────────────── */
+  .console{border:var(--bd);box-shadow:var(--sh-lg);background:#0b0c0f;overflow:hidden}
+  .console__bar{display:flex;align-items:center;gap:12px;background:var(--ink);padding:11px 15px;border-bottom:var(--bd)}
+  .dotz{display:flex;gap:7px}.dotz i{width:13px;height:13px;border-radius:50%;display:block;border:2px solid #0b0c0f}
+  .dotz i:nth-child(1){background:#ff5f57}.dotz i:nth-child(2){background:#febc2e}.dotz i:nth-child(3){background:#28c840}
+  .console__title{font-family:'JetBrains Mono';color:#cdd2da;font-size:12.5px;font-weight:700;letter-spacing:.02em}
+  .console__stat{margin-left:auto;font-family:'JetBrains Mono';color:#2bd46b;font-size:11px;font-weight:700;display:flex;align-items:center;gap:7px}
+  .console__stat i{width:8px;height:8px;border-radius:50%;background:#2bd46b;box-shadow:0 0 8px #2bd46b;animation:cpulse 1.3s infinite}
+  @keyframes cpulse{50%{opacity:.35}}
+  .console__body{font-family:'JetBrains Mono';padding:18px 20px;height:360px;overflow:auto;font-size:13px;line-height:1.95;color:#aeb6c2;
+    background:repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 1px,transparent 1px 27px)}
+  .console__body .ln{display:grid;grid-template-columns:74px 70px 1fr;gap:12px;padding:1px 0}
+  .console__body .ln .t{color:#586475}
+  .console__body .ln .tag{font-weight:800;letter-spacing:.04em}
+  .console__body .ln .msg{color:#d7dce4;white-space:normal}
+  .ln.claim .tag{color:#febc2e}.ln.swap .tag{color:#4aa3ff}.ln.dispense .tag{color:#2bd46b}.ln.batch .tag{color:#33d6c6}.ln.info .tag{color:#8b94a3}
+  .console__cursor{display:inline-block;width:10px;height:17px;background:#2bd46b;vertical-align:text-bottom;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  /* ── restructured layout (distinct from the other site) ──────── */
+  .hero{align-items:stretch}
+  .cmd{padding:20px;display:flex;flex-direction:column;background:var(--yellow-l)}
+  .cmd__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .cmd__lab{font-family:'JetBrains Mono';font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--ink2)}
+  .cmd__lab .dot{width:8px;height:8px;border-radius:50%;background:var(--up);border:2px solid var(--ink)}
+  .cmd__cyc{font-family:'JetBrains Mono';font-size:10px;font-weight:800;color:var(--ink2);border:2px solid var(--ink);padding:3px 7px;background:var(--card)}
+  .cmd__grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .cmd__cell{border:var(--bd);background:var(--card);box-shadow:var(--sh-sm);padding:12px}
+  .cmd__k{font-family:'JetBrains Mono';font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;color:var(--ink2)}
+  .cmd__now{display:flex;align-items:center;gap:10px;margin-top:8px}.cmd__now .lgw{width:36px;height:36px}
+  .cmd__tk{font-family:'Archivo';font-weight:900;font-size:17px;margin-top:8px;line-height:1}
+  .cmd__nm{font-size:10px;color:var(--ink2);margin-top:3px}
+  .cmd__buy{margin-top:16px;justify-content:center;width:100%}
+
+  .dashbar{display:grid;grid-template-columns:1.05fr 2fr;gap:24px;align-items:center;border:var(--bd);background:var(--blue);color:#fff;box-shadow:var(--sh-lg);padding:24px;margin-top:30px}
+  @media(max-width:820px){.dashbar{grid-template-columns:1fr;gap:18px}}
+  .dashbar .hd{font-family:'JetBrains Mono';font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:#cfe0fb;display:flex;align-items:center;gap:8px}
+  .dashbar .hd .dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);border:2px solid #fff}
+  .dashbar .bignum{display:flex;align-items:baseline;gap:10px;margin-top:10px}
+  .dashbar .bignum .v{font-family:'Archivo';font-weight:900;font-size:clamp(44px,7vw,72px);line-height:.82;color:var(--yellow)}
+  .dashbar .bignum .u{font-family:'Archivo';font-weight:900;font-size:18px}
+  .dashbar .cap{font-size:11px;color:#cfe0fb;margin-top:8px;font-family:'JetBrains Mono'}
+  .dashbar .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  @media(max-width:1000px){.dashbar .stats{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:560px){.dashbar .stats{grid-template-columns:repeat(2,1fr)}}
+  .dashbar .stat{border:3px solid #fff;background:rgba(255,255,255,.08);padding:12px}
+  .dashbar .stat .k{font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;color:#cfe0fb}
+  .dashbar .stat .v{font-family:'JetBrains Mono';font-weight:800;font-size:20px;margin-top:6px}.dashbar .stat .v small{font-size:10px;color:#cfe0fb}
+
+  .dash{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:stretch}
+  @media(max-width:940px){.dash{grid-template-columns:1fr}}
+  .dash .chartwrap{margin:0}
+  .dash .console{display:flex;flex-direction:column}
+  .dash .console__body{flex:1;min-height:300px;height:auto}
+
+  /* ── header polish + pump.fun badge ──────────────────────────── */
+  .brand{cursor:pointer}
+  .pumpbadge{display:inline-flex;align-items:center;gap:7px;border:var(--bd);background:#07140e;color:#5ff0b0;box-shadow:var(--sh-sm);
+    font-family:'JetBrains Mono';font-weight:800;font-size:11px;letter-spacing:.01em;padding:6px 10px;transform:rotate(-2.5deg);transition:.14s;white-space:nowrap}
+  .pumpbadge:hover{transform:rotate(0) translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+  .pumpbadge svg{width:16px;height:16px;flex:none}
+  @media(max-width:680px){.pumpbadge{display:none}}
+  .pf--pump svg{width:16px;height:16px;display:block}
+  .iconbtn{transition:.14s}.iconbtn:hover{transform:translate(-1px,-1px) rotate(-3deg)}
+
+  /* ── interactive Dell computer + Truth Social ────────────────── */
+  .deskwrap{display:flex;flex-direction:column;align-items:center;padding:6px 0 18px;position:relative;overflow:visible}
+  .computer{position:relative;display:flex;flex-direction:column;align-items:center;will-change:transform;transition:transform .05s linear}
+  .draghint{font-family:'JetBrains Mono';font-size:10px;font-weight:800;color:var(--ink);background:var(--yellow);border:2px solid var(--ink);box-shadow:var(--sh-sm);padding:3px 9px;margin-bottom:12px;transform:rotate(-1.5deg)}
+  .monitor{width:min(700px,95vw);border:6px solid var(--ink);border-radius:16px;background:#15171c;box-shadow:var(--sh-lg);padding:14px 14px 0}
+  .monitor__screen{border:3px solid #000;border-radius:7px;overflow:hidden;background:#0e1117;height:440px}
+  .monitor__bezel{height:42px;display:flex;align-items:center;justify-content:center;position:relative}
+  .monitor__dell{width:46px;height:22px;color:#c9cdd6;display:flex;align-items:center;justify-content:center}
+  .monitor__dell .demblem{width:100%;height:100%}
+  .monitor__led{position:absolute;right:14px;bottom:15px;width:8px;height:8px;border-radius:50%;background:#36e06a;box-shadow:0 0 9px #36e06a;animation:cpulse 2s infinite}
+  .neck{width:64px;height:44px;background:linear-gradient(#1b1d22,#0e1014);border:3px solid var(--ink);border-top:none}
+  .foot{width:210px;height:18px;background:#15171c;border:3px solid var(--ink);border-radius:0 0 12px 12px}
+
+  .ts{height:100%;display:flex;flex-direction:column;background:#16181f;color:#e8eaf0}
+  .ts__bar{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#0c0e13;border-bottom:1px solid #262a36;cursor:grab;touch-action:none}
+  .ts__bar:active{cursor:grabbing}
+  .ts__brand{font-family:'Archivo';font-weight:900;font-size:15px;color:#fff;letter-spacing:-.02em}.ts__brand span{color:#6b5cff}
+  .ts__win{display:flex;gap:6px}.ts__win i{width:11px;height:11px;border-radius:50%;display:block}.ts__win i:nth-child(1){background:#ff5f57}.ts__win i:nth-child(2){background:#febc2e}.ts__win i:nth-child(3){background:#28c840}
+  .ts__profile{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid #262a36}
+  .ts__av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#f4d680,#b07f28);display:flex;align-items:center;justify-content:center;font-family:'Archivo';font-weight:900;font-size:13px;color:#3a2c05;border:2px solid #6b5cff;flex:none}
+  .ts__name{font-weight:800;font-size:14px;display:flex;align-items:center;gap:6px}
+  .ts__check{width:15px;height:15px;background:#1d9bf0;color:#fff;border-radius:50%;font-size:9px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .ts__name .ts__check{position:relative;cursor:help}
+  .ts__name .ts__check::after{content:"Verified · simulated demo";position:absolute;left:50%;top:calc(100% + 9px);transform:translateX(-50%) translateY(-4px) scale(.96);
+    background:var(--ink);color:var(--yellow);font-family:'JetBrains Mono';font-weight:800;font-size:9.5px;letter-spacing:.02em;white-space:nowrap;
+    padding:6px 9px;border:2px solid var(--yellow);box-shadow:3px 3px 0 #6b5cff;opacity:0;pointer-events:none;transition:.16s;z-index:8}
+  .ts__name .ts__check::before{content:"";position:absolute;left:50%;top:calc(100% + 4px);transform:translateX(-50%) rotate(45deg) scale(0);
+    width:9px;height:9px;background:var(--ink);border-left:2px solid var(--yellow);border-top:2px solid var(--yellow);transform-origin:center;
+    opacity:0;pointer-events:none;transition:.16s;z-index:9}
+  .ts__name .ts__check:hover::after,.ts__name .ts__check:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+  .ts__name .ts__check:hover::before,.ts__name .ts__check:focus-visible::before{opacity:1;transform:translateX(-50%) rotate(45deg) scale(1)}
+  .ts__handle{font-size:11px;color:#8a90a0;margin-top:1px}
+  .ts__follow{margin-left:auto;background:#6b5cff;color:#fff;border:none;font-weight:800;font-size:12px;padding:7px 15px;border-radius:999px;cursor:pointer;transition:.15s}
+  .ts__follow:hover{filter:brightness(1.12)}.ts__follow.on{background:#262a36;color:#8a90a0}
+  .ts__feed{flex:1;overflow:auto;padding:2px 0}
+  .ts__feed::-webkit-scrollbar{width:8px}.ts__feed::-webkit-scrollbar-thumb{background:#2c3140;border-radius:4px}
+  .tsp{padding:11px 14px;border-bottom:1px solid #20232d;animation:tsin .35s ease}
+  @keyframes tsin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  .ts__retruth{font-size:10.5px;color:#8a90a0;margin-bottom:7px;display:flex;align-items:center;gap:6px;font-weight:600}
+  .tsp__h{display:flex;align-items:center;gap:9px}
+  .tsp__av{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-family:'Archivo';font-weight:900;font-size:11px}
+  .tsp__av.trump{background:linear-gradient(135deg,#f4d680,#b07f28);color:#3a2c05}
+  .tsp__av.you{background:var(--blue);color:#fff}
+  .tsp__nm{font-weight:800;font-size:13px;display:flex;align-items:center;gap:5px}
+  .tsp__hd{font-size:11px;color:#8a90a0}
+  .tsp__body{font-size:13.5px;line-height:1.5;margin:8px 0 0;color:#eef0f6;word-wrap:break-word}
+  .tsp__body .cash{color:#7aa2ff;font-weight:800}
+  .tsp__cur{display:inline-block;width:7px;height:14px;background:#6b5cff;vertical-align:text-bottom;animation:blink 1s steps(1) infinite;margin-left:1px}
+  .tsp__acts{display:flex;gap:20px;margin-top:11px;color:#8a90a0;font-size:12px}
+  .tsp__act{display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:.12s;user-select:none}
+  .tsp__act:hover{color:#e8eaf0;transform:translateY(-1px)}
+  .tsp__act.liked{color:#ff5b8a}.tsp__act.retruthed{color:#28c840}
+  .ts__feed{position:relative}
+  .heartpop{position:absolute;z-index:5;pointer-events:none;font-size:13px;color:#ff5b8a;text-shadow:0 0 6px rgba(255,91,138,.6);transform:translate(-50%,-50%);animation:heartpop .72s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes heartpop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}18%{opacity:1;transform:translate(-50%,-150%) scale(1.5)}100%{opacity:0;transform:translate(-50%,-320%) scale(.9)}}
+  .ts__compose{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #262a36;background:#0c0e13}
+  .ts__input{flex:1;min-width:0;background:#1b1e27;border:1px solid #2a2e3a;border-radius:999px;color:#fff;padding:9px 14px;outline:none;font:inherit;font-size:13px}
+  .ts__input:focus{border-color:#6b5cff}.ts__input::placeholder{color:#6b7180}
+  .ts__cc{flex:none;align-self:center;font-family:'JetBrains Mono';font-size:10px;font-weight:800;color:#6b7180;min-width:30px;text-align:right;transition:color .15s}
+  .ts__cc.warn{color:#ffd400}.ts__cc.over{color:#ff5b8a}
+  .ts__truth{background:#6b5cff;color:#fff;border:none;font-family:'Archivo';font-weight:900;font-size:13px;padding:0 16px;border-radius:999px;cursor:pointer;transition:.15s;flex:none}
+  .ts__truth:hover{filter:brightness(1.14)}.ts__truth:active{transform:scale(.94)}
+  .ts__trend{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #262a36;background:#10131b;overflow-x:auto;scrollbar-width:none}
+  .ts__trend::-webkit-scrollbar{display:none}
+  .ts__trend .tlab{font-family:'JetBrains Mono';font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:#6b7180;flex:none}
+  .ts__tag{flex:none;font-size:12px;font-weight:700;color:#7aa2ff;background:#1b1e27;border:1px solid #2a2e3a;border-radius:999px;padding:5px 11px;cursor:pointer;transition:.13s;white-space:nowrap}
+  .ts__tag:hover{background:#6b5cff;border-color:#6b5cff;color:#fff;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<div class="marquee"><div class="track" id="tape"></div></div>
+
+<div class="topbar" id="top">
+  <a class="brand" href="#top" aria-label="$DELL·STOX home">
+    <span class="dcoin" id="brandCoin"></span>
+    <span class="wordmark">$DELL<span class="b">·STOX</span></span>
+    <span class="pumpbadge" title="Live on pump.fun">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#1ad17e"/><g transform="rotate(45 12 12)"><rect x="6.5" y="4" width="11" height="16" rx="5.5" fill="#0a2a1c"/><rect x="6.5" y="4" width="11" height="8" rx="5.5" fill="#bff5dc"/></g></svg>
+      pump.fun
+    </span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a class="lnk hideSm" href="#truth">Truth Social</a>
+    <a class="lnk hideSm" href="#chart">Dashboard</a>
+    <a class="lnk hideSm" href="#airdrops">Airdrops</a>
+    <a class="lnk hideSm" href="#how">How it works</a>
+    <a class="iconbtn" href="#" title="Follow on X" aria-label="Follow on X">𝕏</a>
+    <span class="live"><span class="dot" id="stDot"></span><span id="stTxt">live</span></span>
+    <a class="btn blue" id="buyTop" href="#"><span class="pf pf--pump" aria-hidden="true"><svg viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#0a2a1c"/><g transform="rotate(45 12 12)"><rect x="6.5" y="4" width="11" height="16" rx="5.5" fill="#fff"/><rect x="6.5" y="4" width="11" height="8" rx="5.5" fill="#bff5dc"/></g></svg></span>BUY</a>
+  </nav>
+</div>
+
+<div class="wrap">
+
+  <section class="hero">
+    <div>
+      <div class="tagsticker"><span class="dot"></span> LIVE · <span id="holdTxt">—</span> holders · <span id="qualTxt">—</span> qualified · ~5 min cycle → ~10 min payout</div>
+      <h1 class="title">Hold the<br>coin. Get<br>paid in <span class="hl">real</span> <span class="hl y">Dell.</span></h1>
+      <p class="lede">
+        Every cycle the machine claims the fees, buys real tokenized <b>Dell Technologies (DELL)</b>
+        stock on-chain, and airdrops it straight into every holder's wallet — automatically.
+        One stock, all Dell. Hold <b id="ledeMin">500,000</b>+ $DELL; the bigger your bag, the bigger your slice.
+      </p>
+      <div class="hero-cta">
+        <a class="btn blue" id="buyHero" href="#"><span class="pf">◎</span>BUY $DELL</a>
+        <a class="btn yellow" href="#how">HOW IT WORKS</a>
+        <span class="ca" id="caBtn" title="Copy contract address"><span class="lab">CA</span><span id="caText" class="mono">DeLLxStock…pumpMint</span></span>
+      </div>
+    </div>
+    <aside class="cmd box">
+      <div class="cmd__top"><span class="cmd__lab"><span class="dot"></span> Next airdrop in</span><span class="cmd__cyc">~5m wait → ~10m payout</span></div>
+      <div class="count" id="count">--:--</div>
+      <div class="pbar"><i id="bar"></i></div>
+      <div class="dispNote" id="dispNote"></div>
+      <div class="cmd__grid">
+        <div class="cmd__cell"><div class="cmd__k" id="nowLabel">Dropping next</div>
+          <div class="cmd__now"><div class="lgw nowlogo lit" id="nowLogo"></div><div><div class="cmd__tk">$DELL</div><div class="cmd__nm">Dell Technologies</div></div></div></div>
+        <div class="cmd__cell"><div class="cmd__k">This cycle buys</div><div class="cmd__tk mono" id="buyEst">—</div><div class="cmd__nm">est. from claimed fees</div></div>
+      </div>
+      <a class="btn blue cmd__buy" id="buyBtn" href="#"><span class="pf">◎</span>BUY ON PUMP.FUN</a>
+    </aside>
+  </section>
+
+  <section class="dashbar">
+    <div>
+      <div class="hd"><span class="dot"></span> Total DELL shipped to holders</div>
+      <div class="bignum"><span class="v" id="totalVal">0.000</span><span class="u">DELL</span></div>
+      <div class="cap" id="lastPaid">—</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">Fees claimed</div><div class="v"><span id="sClaimed">0</span> <small>SOL</small></div></div>
+      <div class="stat"><div class="k">Holder payouts</div><div class="v" id="sPaid">0</div></div>
+      <div class="stat"><div class="k">Airdrop cycles</div><div class="v" id="sCycles">0</div></div>
+      <div class="stat"><div class="k">SOL → DELL</div><div class="v"><span id="sSol">0</span> <small>SOL</small></div></div>
+      <div class="stat"><div class="k">Value shipped</div><div class="v"><small>$</small><span id="sUsd">0</span></div></div>
+      <div class="stat"><div class="k">Qualified</div><div class="v" id="sQual">0</div></div>
+    </div>
+  </section>
+
+  <div class="sec" id="truth"><div class="t">Live from <span class="ybox">Truth Social</span></div><div class="s">The President's desk — running on a Dell · drag the title bar to move it · write your own Truth</div></div>
+  <div class="deskwrap">
+    <div class="draghint">⤧ DRAG ME · TYPE A TRUTH ↓</div>
+    <div class="computer" id="computer">
+      <div class="monitor">
+        <div class="monitor__screen">
+          <div class="ts">
+            <div class="ts__bar" id="tsDrag">
+              <span class="ts__brand">TRUTH<span>SOCIAL</span></span>
+              <span class="ts__win"><i></i><i></i><i></i></span>
+            </div>
+            <div class="ts__profile">
+              <div class="ts__av">DJT</div>
+              <div><div class="ts__name">Donald J. Trump <span class="ts__check" tabindex="0" role="img" aria-label="Verified account — simulated demo" title="Verified · simulated demo">✓</span></div><div class="ts__handle">@realDonaldTrump · 45th &amp; 47th President</div></div>
+              <button class="ts__follow" id="tsFollow">Follow</button>
+            </div>
+            <div class="ts__trend" id="tsTrend" aria-label="Trending"><span class="tlab">Trending</span></div>
+            <div class="ts__feed" id="tsFeed"></div>
+            <div class="ts__compose">
+              <input id="tsInput" class="ts__input" placeholder="Write a Truth about $DELL…" maxlength="180" spellcheck="false" autocomplete="off" aria-describedby="tsCount" />
+              <span id="tsCount" class="ts__cc" aria-live="polite" aria-label="characters remaining">180</span>
+              <button id="tsPost" class="ts__truth">TRUTH!</button>
+            </div>
+          </div>
+        </div>
+        <div class="monitor__bezel"><span class="monitor__dell demblem" id="monitorDell"></span><span class="monitor__led"></span></div>
+      </div>
+      <div class="neck"></div>
+      <div class="foot"></div>
+    </div>
+  </div>
+
+  <div class="sec" id="chart"><div class="t">The <span class="ybox">machine</span> floor</div><div class="s">Live DELL price &amp; the dispenser console, side by side</div></div>
+  <div class="dash">
+    <section class="chartwrap box">
+      <div class="chart-top">
+        <div class="chart-px"><span class="v" id="pxVal">$—</span><span class="chg up" id="pxChg">—</span></div>
+        <div class="chart-tabs" id="chartTabs">
+          <button data-r="1D">1D</button><button data-r="1W" class="on">1W</button><button data-r="1M">1M</button><button data-r="1Y">1Y</button>
+        </div>
+      </div>
+      <div class="chartbox"><canvas id="dellChart"></canvas><div class="chart-cross" id="chartCross"></div><div class="chart-tip" id="chartTip" role="status" aria-live="off"></div></div>
+      <div class="chart-axis" id="chartAxis"></div>
+    </section>
+    <section class="console">
+      <div class="console__bar"><span class="dotz"><i></i><i></i><i></i></span><span class="console__title">dell-machine.log</span><span class="console__stat"><i></i> streaming · <span id="feedLines" aria-live="off">0</span> lines</span></div>
+      <div class="console__body" id="feed"></div>
+    </section>
+  </div>
+
+  <div class="sec" id="how"><div class="t">How it <b>works</b></div><div class="s">Buy, hold, get paid in real Dell — automatically</div></div>
+  <div class="steps">
+    <div class="step"><span class="num">1</span>
+      <div class="st-t">Hold 500k+</div>
+      <div class="st-d">Hold at least <b id="stepMin2">500,000</b> $DELL to qualify. Your share of every airdrop is proportional to your bag — no claiming, no lockups.</div></div>
+    <div class="step"><span class="num">2</span>
+      <div class="st-t">The vault buys DELL</div>
+      <div class="st-d">Creator fees pile up on-chain. Each cycle the vault claims them and <b>buys real tokenized DELL stock</b> right on Jupiter.</div></div>
+    <div class="step"><span class="num">3</span>
+      <div class="st-t">Airdropped pro-rata</div>
+      <div class="st-d">After each <b>~5 min</b> cycle the DELL is streamed out in <b>batches over ~10 min</b> — straight to every qualified holder, split by bag size. Real stock, in your wallet.</div></div>
+  </div>
+
+  <div class="sec" id="calc"><div class="t">What's my <span class="ybox">cut?</span></div><div class="s">Estimate your DELL airdrops by bag size · live from the current pot</div></div>
+  <section class="calcwrap box">
+    <div class="calc-grid">
+      <div class="calc-input">
+        <div class="calc-lab">Your $DELL bag</div>
+        <div class="calc-bagrow"><input id="bagInput" class="bagIn" type="text" value="2,000,000" inputmode="numeric" /><span class="bagunit">$DELL</span></div>
+        <input id="bagSlider" class="bagSlider" type="range" min="0" max="50000000" step="100000" value="2000000" />
+        <div class="calc-presets">
+          <button class="preset" data-v="500000">500K</button>
+          <button class="preset" data-v="2000000">2M</button>
+          <button class="preset" data-v="10000000">10M</button>
+          <button class="preset" data-v="25000000">25M</button>
+        </div>
+        <div class="calc-note" id="calcQual"></div>
+      </div>
+      <div class="calc-out">
+        <div class="calc-share"><div class="calc-lab">Your share of each drop</div><div class="calc-sharev" id="calcShare">—</div></div>
+        <div class="calc-cards">
+          <div class="calc-card"><div class="cc-k">Per cycle · 5 min</div><div class="cc-v" id="calcCycle">—</div><div class="cc-u" id="calcCycleUsd">—</div></div>
+          <div class="calc-card hl"><div class="cc-k">Per day</div><div class="cc-v" id="calcDay">—</div><div class="cc-u" id="calcDayUsd">—</div></div>
+          <div class="calc-card"><div class="cc-k">Per week</div><div class="cc-v" id="calcWeek">—</div><div class="cc-u" id="calcWeekUsd">—</div></div>
+        </div>
+        <div class="calc-mile"><div class="cm-ic">★</div><div class="cm-tx" id="calcMile">—</div></div>
+        <div class="calc-dis">Estimate only — based on the current simulated pot, average drop size, and a $5-min cycle (288/day). Real yield varies with creator-fee volume, holder count, and the DELL price.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sec" id="checker"><div class="t">Check your <span class="ybox">bag</span></div><div class="s">Paste any wallet · see the DELL it's been airdropped</div></div>
+  <section class="checkwrap box">
+    <div class="checkbar">
+      <input id="addrInput" class="addrIn" placeholder="Paste a Solana wallet address…" spellcheck="false" autocomplete="off" />
+      <button id="checkBtn" class="btn blue">CHECK</button>
+      <button id="demoAddr" class="btn yellow">TRY SAMPLE</button>
+    </div>
+    <div id="checkResult" class="checkres"></div>
+  </section>
+
+  <div class="sec"><div class="t">Last <b>12</b> drops</div><div class="s">One DELL buy per cycle, distributed to every holder</div></div>
+  <div class="rail" id="rail"></div>
+
+  <div class="sec" id="airdrops"><div class="t">Recent <span class="ybox">airdrops</span></div><div class="s">Live from the dispenser — newest first</div></div>
+  <div class="winners" id="winnersGrid"></div>
+
+  <div class="sec" id="faq"><div class="t">Questions, <span class="ybox">answered</span></div><div class="s">The machine, in plain English</div></div>
+  <div class="faq">
+    <details class="qa qa-show" open><summary>How do I get the DELL?</summary><div class="qa-wrap"><div><div class="qa-b">Hold at least <b>500,000 $DELL</b> in your wallet. Every cycle the machine airdrops tokenized DELL <b>straight to you</b>, sized to your share of the pot. Nothing to claim — it just shows up.</div></div></div></details>
+    <details class="qa"><summary>What funds the airdrops?</summary><div class="qa-wrap"><div><div class="qa-b">pump.fun <b>creator fees</b>. Each cycle the bot claims the fees, buys DELL on Jupiter, and ships it out. It can only ever spend what it has provably claimed — the dev's SOL is never touched.</div></div></div></details>
+    <details class="qa"><summary>Is this real Dell stock?</summary><div class="qa-wrap"><div><div class="qa-b">The concept buys <b>tokenized DELL equity</b> (a Token-2022 asset on Solana, 1 token ≈ 1 share) on the open market. This page is a <b>demo</b> with simulated numbers — wire the live bot + feed to make it real.</div></div></div></details>
+    <details class="qa"><summary>Do I have to claim or stake?</summary><div class="qa-wrap"><div><div class="qa-b"><b>No.</b> No claiming, no staking, no lockups, no wallet connection required to receive. Hold the coin in any Solana wallet and the DELL is airdropped to you automatically.</div></div></div></details>
+    <details class="qa"><summary>How big is my cut?</summary><div class="qa-wrap"><div><div class="qa-b">It's <b>proportional</b> — your bag ÷ all qualified holders' bags, applied to every drop. Bigger bag, bigger slice. Use the <a href="#calc" style="border-bottom:2px solid var(--blue)"><b>calculator</b></a> above to estimate yours.</div></div></div></details>
+    <details class="qa"><summary>Is this affiliated with Dell?</summary><div class="qa-wrap"><div><div class="qa-b"><b>No.</b> This is an independent, memecoin-style concept for entertainment — not affiliated with, endorsed by, or representing Dell Technologies, and <b>not financial advice</b>.</div></div></div></details>
+  </div>
+
+  <footer>
+    <div><a class="fl" href="#">𝕏 FOLLOW @dellstoxcoin</a></div>
+    <div>$DELL — the machine claims fees, buys real tokenized Dell stock, and airdrops it to every holder, every cycle.</div>
+    <div class="dis">Demo / concept build. Memecoin-style entertainment, not financial advice and not an offer of securities. All figures on this page are <b>simulated illustrative data</b> generated in your browser — no live chain, no live quotes. Dell Technologies and "DELL" are referenced thematically; this concept is not affiliated with or endorsed by Dell.</div>
+  </footer>
+</div>
+
+<div id="rain"></div>
+<div class="flash" id="flash"><div class="card2f">
+  <div class="lgw" id="flashLogo"></div>
+  <div class="lab" id="flashLab">DELL airdrop sent</div>
+  <div class="big" id="flashAmt">0 <small>DELL</small></div>
+  <div class="sub" id="flashSub">paying every holder…</div>
+</div></div>
+
+<script>
+/* =====================================================================
+   $DELL — self-contained simulated live engine (no backend).
+   ===================================================================== */
+'use strict';
+
+function dellSVG(){
+  return '<svg viewBox="0 0 100 100" fill="none">'
+    + '<circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5"/>'
+    + '<text x="50" y="51" text-anchor="middle" dominant-baseline="central" '
+    + 'font-family="Archivo,Arial" font-weight="900" font-size="29" letter-spacing="-1.5" '
+    + 'fill="currentColor" rotate="0 -11 0 0">DELL</text></svg>';
+}
+function dellTile(cls){ return '<span class="lgw '+(cls||'')+'"><span class="demblem">'+dellSVG()+'</span></span>'; }
+function injectEmblems(){
+  ['brandCoin','coreCoin','nowLogo','flashLogo'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML='<span class="demblem">'+dellSVG()+'</span>';});
+  var md=document.getElementById('monitorDell');if(md)md.innerHTML=dellSVG();
+}
+
+var SH=function(n,d){d=(d==null?4:d);return (Number(n)||0).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});};
+var SOL=function(n,d){d=(d==null?4:d);return (Number(n)||0).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});};
+var short=function(a){return a?a.slice(0,4)+'…'+a.slice(-4):'—';};
+var fmtTok=function(n){n=Number(n)||0;if(n>=1e9)return (n/1e9).toFixed(2)+'B';if(n>=1e6)return (n/1e6).toFixed(2)+'M';if(n>=1e3)return (n/1e3).toFixed(1)+'K';return n.toLocaleString(undefined,{maximumFractionDigits:0});};
+var ago=function(ts){if(!ts)return '—';var s=Math.floor((Date.now()-ts)/1000);if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';return Math.floor(s/3600)+'h ago';};
+function rnd(a,b){return a+Math.random()*(b-a);}
+function fakeAddr(){var c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789';var s='';for(var i=0;i<44;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+function idColor(a){var h=0;for(var i=0;i<a.length;i++)h=(h*31+a.charCodeAt(i))%360;return 'hsl('+h+',75%,55%)';}
+
+var DELL_PX=420.91, MIN_HOLD=500000;  // DELL_PX drives the cosmetic chart; MIN_HOLD is synced from the live engine
+
+// ── live state, fed entirely by the backend's /api/state ─────────────
+var state={cycleSeconds:30,nextCycleAt:0,status:'idle',dist:null,
+  holders:[],holderCount:0,qualifiedCount:0,
+  totals:{solClaimed:0,solSpent:0,recipientsPaid:0,dispenseCount:0,dellShipped:0},
+  recentWinners:[],drops:[],events:[],lastDispense:null,liveDispense:null,buyEst:0,
+  maintenance:false,maintenanceReason:'',mint:''};
+function qualified(){return state.holders.filter(function(h){return h.bal>=MIN_HOLD;});}
+
+var _booted=false,_lastDispKey='';
+function mapState(s){
+  if(!s)return;
+  if(typeof s.minHolderBalance==='number'&&s.minHolderBalance>0)MIN_HOLD=s.minHolderBalance;
+  if(s.cycleSeconds)state.cycleSeconds=s.cycleSeconds;
+  state.nextCycleAt=s.nextCycleAt||0;
+  state.maintenance=!!s.maintenance;state.maintenanceReason=s.maintenanceReason||'';
+  state.mint=s.xstocksMint||'';
+  var st=s.status;
+  state.status=(st==='claiming'||st==='buying'||st==='dispensing')?st:'idle';
+  state.holderCount=(s.current&&s.current.holderCount)||0;
+  state.qualifiedCount=(s.current&&s.current.qualifiedCount)||0;
+  state.holders=(s.topHolders||[]).map(function(h){return {owner:h.owner,bal:h.uiBalance};});
+  var per=s.perStock||{},shipped=0;for(var k in per){if(per[k]&&typeof per[k].totalUi==='number')shipped+=per[k].totalUi;}
+  var t=s.totals||{};
+  state.totals={solClaimed:t.solClaimed||0,solSpent:t.solSpentOnStock||0,recipientsPaid:t.recipientsPaid||0,dispenseCount:t.dispenseCount||0,dellShipped:shipped};
+  state.recentWinners=(s.recentWinners||[]).map(function(w){return {owner:w.owner,amount:w.amountUi,sol:w.solValue,ts:w.ts,sig:w.signature};});
+  state.drops=(s.dispenses||[]).slice().reverse().map(function(d){return {ts:d.ts,shares:d.totalUi,sol:d.solSpent,recipients:d.recipientCount};});
+  var ld=s.lastDispense;state.lastDispense=ld?{ts:ld.ts,shares:ld.totalUi,recipients:ld.recipientCount}:null;
+  var lv=s.liveDispense;
+  if(lv&&lv.status==='running'){
+    var batch=6,total=lv.recipientCount||state.qualifiedCount||0,batches=Math.max(1,Math.ceil(total/batch));
+    var durMs=Math.max(20000,batches*1800),elapsed=Date.now()-(lv.startedAt||Date.now());
+    var done=Math.min(batches,Math.floor(elapsed/durMs*batches));
+    state.dist={startedAt:lv.startedAt||Date.now(),durMs:durMs,batches:batches,batchesDone:done,paid:Math.min(total,done*batch),total:total};
+    state.status='dispensing';
+  } else { state.dist=null; }
+  state.events=(s.events||[]).map(function(e){return {type:e.type,message:e.message,ts:e.ts};});
+  state.buyEst=(typeof s.claimPoolLamports==='number'?s.claimPoolLamports/1e9:0)*0.9;
+  var key=ld?(ld.ts+':'+ld.recipientCount):'';
+  if(_booted&&key&&_lastDispKey&&key!==_lastDispKey)fireFlash(ld.totalUi);
+  _lastDispKey=key;
+  updateMintUI();
+}
+function updateMintUI(){
+  if(!state.mint)return;
+  var ca=document.getElementById('caText');if(ca)ca.textContent=state.mint;
+  var url='https://pump.fun/coin/'+state.mint;
+  ['buyTop','buyHero','buyBtn'].forEach(function(id){var el=document.getElementById(id);if(el){el.href=url;el.target='_blank';el.rel='noopener';el.dataset.live='1';}});
+}
+function sync(){
+  fetch('/api/state',{cache:'no-store'}).then(function(r){return r.json();}).then(function(s){mapState(s);render();_booted=true;}).catch(function(){});
+}
+
+var disp={},_winKey='',_railKey='',_feedKey='';
+function animNum(id,target,dec){var c=(disp[id]==null?target*0.85:disp[id]);c+=(target-c)*0.22;if(Math.abs(target-c)<Math.pow(10,-(dec+1)))c=target;disp[id]=c;var el=document.getElementById(id);if(el)el.textContent=(dec>=3?SOL(c,dec):Math.round(c).toLocaleString());}
+function renderCount(el,t){if(/^\d{2}:\d{2}$/.test(t)){var h='';for(var i=0;i<t.length;i++){var ch=t.charAt(i);h+=(ch===':'?'<span class="colon">:</span>':'<span class="digit">'+ch+'</span>');}el.innerHTML=h;}else el.innerHTML='<span class="cword">'+t+'</span>';}
+
+function render(){
+  var busy=(state.status==='claiming'||state.status==='buying'||state.status==='dispensing');
+  if(state.maintenance){
+    document.getElementById('stDot').className='dot amber';
+    document.getElementById('stTxt').textContent='setup';
+  } else {
+    document.getElementById('stDot').className='dot'+(busy?' amber':'');
+    document.getElementById('stTxt').textContent=busy?state.status:'live';
+  }
+  document.getElementById('holdTxt').textContent=state.holderCount;
+  document.getElementById('qualTxt').textContent=state.qualifiedCount;
+  document.getElementById('ledeMin').textContent=MIN_HOLD.toLocaleString();
+  document.getElementById('stepMin2').textContent=MIN_HOLD.toLocaleString();
+  document.getElementById('buyEst').textContent='~'+SH(state.buyEst,3)+' SOL';
+
+  var cEl=document.getElementById('count');
+  var cyc=(state.nextCycleAt>Date.now())?Math.max(0,Math.floor((state.nextCycleAt-Date.now())/1000)):0;
+  var mm=String(Math.floor(cyc/60)).padStart(2,'0'),ss=String(cyc%60).padStart(2,'0');
+  var bar=document.getElementById('bar'),note=document.getElementById('dispNote');
+  document.getElementById('nowLabel').textContent=busy?'Now paying':'Dropping';
+  if(state.status==='dispensing'){cEl.className='count paying';renderCount(cEl,'PAYING');document.getElementById('nowLabel').textContent='Distributing';
+    var d=state.dist||{durMs:1,startedAt:Date.now(),batchesDone:0,batches:0,paid:0,total:0};var frac=Math.min(.99,(Date.now()-d.startedAt)/d.durMs);
+    var left=Math.max(0,Math.round((d.durMs-(Date.now()-d.startedAt))/1000));
+    bar.style.width=(frac*100).toFixed(0)+'%';note.className='dispNote';
+    note.innerHTML='distributing · batch <b>'+d.batchesDone+'/'+d.batches+'</b> · paid <b>'+d.paid+'</b> of <b>'+d.total+'</b> · ~'+left+'s left';}
+  else if(state.status==='buying'){cEl.className='count';renderCount(cEl,'BUYING');bar.style.width='10%';note.className='dispNote';note.textContent='swapping SOL → DELL on Jupiter…';}
+  else if(state.status==='claiming'){cEl.className='count';renderCount(cEl,'CLAIM');bar.style.width='4%';note.className='dispNote';note.textContent='claiming creator fees…';}
+  else{cEl.className='count'+((cyc<=10&&cyc>0)?' soon':'');renderCount(cEl,mm+':'+ss);bar.style.width=Math.max(0,Math.min(100,100-(cyc/state.cycleSeconds*100)))+'%';
+    document.getElementById('nowLabel').textContent='Dropping next';
+    var ld=state.lastDispense;if(ld&&(Date.now()-ld.ts)<8000){note.className='dispNote warm';note.textContent='✓ just shipped '+SH(ld.shares,4)+' DELL to '+ld.recipients+' holders';}else{note.className='dispNote';note.innerHTML='waiting for next cycle · <b>~5 min</b> wait → <b>~10 min</b> distribution <span style="color:var(--ink2)">(demo accelerated)</span>';}}
+
+  animNum('totalVal',state.totals.dellShipped,3);animNum('sClaimed',state.totals.solClaimed,3);animNum('sPaid',state.totals.recipientsPaid,0);
+  animNum('sCycles',state.totals.dispenseCount,0);animNum('sSol',state.totals.solSpent,3);
+  animNum('sUsd',state.totals.dellShipped*DELL_PX,0);
+  document.getElementById('sQual').textContent=state.qualifiedCount;
+  var ld=state.lastDispense;document.getElementById('lastPaid').textContent=ld?('last: '+SH(ld.shares,3)+' DELL → '+ld.recipients+' holders · '+ago(ld.ts)):'no airdrops yet';
+
+  var last12=state.drops.slice(-12);
+  var rKey=state.drops.length+':'+(last12.length?last12[last12.length-1].ts:0);
+  if(rKey!==_railKey){_railKey=rKey;
+    document.getElementById('rail').innerHTML=last12.map(function(d,i){var isNow=(i===last12.length-1)&&(Date.now()-d.ts<12000);
+      return '<div class="chip'+(isNow?' now':'')+'">'+dellTile()+'<div class="tk">'+SH(d.shares,2)+'</div><div class="st">'+(isNow?'just now':ago(d.ts))+'</div></div>';}).join('');}
+
+  var wKey=state.recentWinners.length+':'+(state.recentWinners[0]?state.recentWinners[0].ts:0);
+  if(wKey!==_winKey){_winKey=wKey;
+    document.getElementById('winnersGrid').innerHTML=state.recentWinners.slice(0,18).map(function(w){
+      return '<div class="ticket"><div class="top"><span class="tkw">'+dellTile()+'<span class="tk">DELL</span></span><span>'+ago(w.ts)+'</span></div>'
+        +'<div class="amt">'+SH(w.amount,4)+' <small>DELL</small><span class="usd">≈ $'+SOL(w.amount*DELL_PX,2)+'</span></div>'
+        +'<div class="addr">'+short(w.owner)+'</div><div class="meta"><span>≈ '+SOL(w.sol,4)+' SOL</span><a href="#">receipt ▸</a></div></div>';}).join('');}
+
+  renderFeed();
+}
+
+function renderFeed(){
+  var box=document.getElementById('feed');if(!box)return;
+  var fKey=state.events.length+':'+(state.events.length?state.events[state.events.length-1].ts:0);
+  if(fKey===_feedKey)return; _feedKey=fKey;
+  var fl=document.getElementById('feedLines');if(fl)fl.textContent=state.events.length.toLocaleString();
+  var TAG={claim:'CLAIM',swap:'BUY',dispense:'SHIP',batch:'BATCH',info:'SYS'};
+  var p=function(n){return String(n).padStart(2,'0');};
+  box.innerHTML=state.events.slice(-18).map(function(e){var dt=new Date(e.ts);
+    return '<div class="ln '+e.type+'"><span class="t">'+p(dt.getHours())+':'+p(dt.getMinutes())+':'+p(dt.getSeconds())+'</span><span class="tag">'+(TAG[e.type]||'·')+'</span><span class="msg">'+e.message+'</span></div>';
+  }).join('')+'<div class="ln"><span class="t"></span><span class="tag"></span><span class="msg"><span class="console__cursor"></span></span></div>';
+  box.scrollTop=box.scrollHeight;
+}
+
+function rainLogos(){var host=document.getElementById('rain');
+  for(var i=0;i<22;i++){var d=document.createElement('div');d.className='drop';d.innerHTML='<span class="demblem">'+dellSVG()+'</span>';
+    d.style.left=(Math.random()*100)+'vw';d.style.setProperty('--r',((Math.random()-.5)*420)+'deg');
+    var dur=1.7+Math.random()*1.6;d.style.animation='fall '+dur+'s cubic-bezier(.4,.1,.7,1) forwards';d.style.animationDelay=(Math.random()*.5)+'s';
+    var sz=32+Math.random()*24;d.style.width=sz+'px';d.style.height=sz+'px';host.appendChild(d);
+    (function(el){setTimeout(function(){el.remove();},(dur+.6)*1000);})(d);}}
+function fireFlash(shares){var f=document.getElementById('flash');document.getElementById('flashAmt').innerHTML=SH(shares,4)+' <small>DELL</small>';
+  document.getElementById('flashSub').textContent='paid '+((state.lastDispense&&state.lastDispense.recipients)||state.qualifiedCount)+' holders';f.classList.add('show');rainLogos();setTimeout(function(){f.classList.remove('show');},3300);}
+
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(window.__tt);window.__tt=setTimeout(function(){t.classList.remove('show');},1600);}
+document.getElementById('caBtn').addEventListener('click',function(){var ca=document.getElementById('caText').textContent;
+  navigator.clipboard.writeText(ca).then(function(){var b=document.getElementById('caBtn');b.classList.add('copied');showToast('Contract address copied');setTimeout(function(){b.classList.remove('copied');},1200);}).catch(function(){showToast('Copy failed');});});
+
+function doCheck(addr){addr=(addr||'').trim();var box=document.getElementById('checkResult');
+  if(addr.length<32||addr.length>44){box.className='checkres show';box.innerHTML='<div class="cr-empty">That does not look like a Solana wallet address.</div>';return;}
+  box.className='checkres show';box.innerHTML='<div class="cr-empty">Looking up '+short(addr)+'…</div>';
+  fetch('/api/holder/'+encodeURIComponent(addr),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+    var hold=d.holding||{};var bal=hold.uiBalance||0;var qual=!!hold.qualified;
+    var received=(d.byStock||[]).reduce(function(a,b){return a+(b.shares||0);},0);
+    var drops=d.count||0;var min=(d.minHolderBalance||MIN_HOLD);
+    var qb=qual?'<span class="qbadge">✓ qualified</span>':'<span class="qbadge no">below '+min.toLocaleString()+'</span>';
+    var head='<div class="cr-head"><div><div class="cr-addr">'+short(addr)+' <span class="cr-copy" id="crCopy">copy</span></div>'
+      +'<div class="cr-tot">'+SH(received,4)+' <small>DELL received · '+drops+' airdrops · ≈ $'+SOL(received*DELL_PX,2)+'</small></div></div>'
+      +'<div class="cr-q">'+qb+'<div style="margin-top:7px">holds '+fmtTok(bal)+' $DELL'+(hold.share?(' · '+(hold.share*100).toFixed(2)+'% of pool'):'')+'</div></div></div>';
+    var grid='<div class="cr-grid"><div class="cr-cell">'+dellTile()+'<div><div class="tk">DELL</div><div class="sh">'+SH(received,4)+'</div><div class="sl">'+drops+' airdrops'+(d.totalSol?(' · ≈ '+SOL(d.totalSol,4)+' SOL'):'')+'</div></div></div></div>';
+    if(!qual)grid='<div class="cr-empty">This wallet holds '+fmtTok(bal)+' $DELL — top up to '+min.toLocaleString()+'+ to start earning DELL every cycle.</div>';
+    box.innerHTML=head+grid;var cc=document.getElementById('crCopy');
+    if(cc)cc.addEventListener('click',function(){navigator.clipboard.writeText(addr).then(function(){cc.classList.add('copied');cc.textContent='copied';showToast('Address copied');}).catch(function(){});});
+  }).catch(function(){box.className='checkres show';box.innerHTML='<div class="cr-empty">Could not reach the engine — try again in a moment.</div>';});}
+document.getElementById('checkBtn').addEventListener('click',function(){doCheck(document.getElementById('addrInput').value);});
+document.getElementById('addrInput').addEventListener('keydown',function(e){if(e.key==='Enter')doCheck(e.target.value);});
+document.getElementById('demoAddr').addEventListener('click',function(){var h=state.holders[0];if(!h){showToast('No holders yet — check back once the machine has paid out.');return;}document.getElementById('addrInput').value=h.owner;doCheck(h.owner);});
+
+/* orbit */
+(function(){var o1=document.getElementById('orbit1'),o2=document.getElementById('orbit2');if(!o1||!o2)return;
+  function build(host,count,radius,sm){host.innerHTML='';for(var i=0;i<count;i++){var a=(360/count)*i;
+    var item=document.createElement('div');item.className='o-item';item.style.transform='rotate('+a+'deg) translate(0,-'+radius+'px)';
+    var sp=document.createElement('div');sp.className='o-spin';sp.innerHTML='<span class="lgw o-ic'+(sm?' sm':'')+'"><span class="demblem">'+dellSVG()+'</span></span>';
+    item.appendChild(sp);host.appendChild(item);}}
+  function layout(){var R=o1.parentElement.clientWidth/2;build(o1,6,Math.round(R*0.90),false);build(o2,6,Math.round(R*0.66),true);}
+  layout();addEventListener('resize',layout);})();
+
+/* DELL chart (neo-brutalist: Dell-blue line on paper) */
+var CHART_RANGE='1W',seriesCache={},chartGeo=null;
+/* Real NYSE:DELL anchors (StockAnalysis/CNBC, as of 2026-05-29 close $420.91):
+   1D vs prior close $317.05 (+32.8%), 1W $295.19 (+42.6%), 1M $210.17 (+100%), 1Y $111.93 (+276%). */
+function chartSeries(range){var conf={'1D':{n:78,start:317.05,vol:2.6},'1W':{n:90,start:295.19,vol:4.5},'1M':{n:120,start:210.17,vol:8},'1Y':{n:160,start:111.93,vol:14}}[range];
+  var arr=[],p=conf.start;for(var i=0;i<conf.n;i++){var drift=(DELL_PX-conf.start)/conf.n;p=Math.max(40,p+drift+(Math.random()-.5)*conf.vol);arr.push(p);}arr[arr.length-1]=DELL_PX;return arr;}
+function drawChart(){var cv=document.getElementById('dellChart'),ctx=cv.getContext('2d');var DPR=Math.min(2,window.devicePixelRatio||1);
+  var W=cv.clientWidth,H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+  var s=seriesCache[CHART_RANGE]||(seriesCache[CHART_RANGE]=chartSeries(CHART_RANGE));
+  var min=Math.min.apply(null,s),max=Math.max.apply(null,s),rng=(max-min)||1,pad=16;
+  var X=function(i){return (i/(s.length-1))*W;},Y=function(v){return pad+(1-(v-min)/rng)*(H-pad*2);};
+  var grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'rgba(10,95,214,.22)');grad.addColorStop(1,'rgba(10,95,214,0)');
+  ctx.beginPath();ctx.moveTo(0,H);s.forEach(function(v,i){ctx.lineTo(X(i),Y(v));});ctx.lineTo(W,H);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();s.forEach(function(v,i){if(i===0)ctx.moveTo(X(i),Y(v));else ctx.lineTo(X(i),Y(v));});
+  ctx.strokeStyle='#0a5fd6';ctx.lineWidth=3.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+  ctx.beginPath();ctx.arc(X(s.length-1),Y(s[s.length-1]),6,0,7);ctx.fillStyle='#0a5fd6';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#111110';ctx.stroke();
+  var chg=DELL_PX-s[0],chgp=chg/s[0]*100,up=chg>=0;
+  document.getElementById('pxVal').textContent='$'+DELL_PX.toFixed(2);
+  var ce=document.getElementById('pxChg');ce.className='chg '+(up?'up':'dn');ce.textContent=(up?'▲ +':'▼ ')+chg.toFixed(2)+' ('+(up?'+':'')+chgp.toFixed(2)+'%)';
+  var labels={'1D':['9:30','11:15','1:00','2:45','4:00'],'1W':['Mon','Tue','Wed','Thu','Fri'],'1M':['wk1','wk2','wk3','wk4',''],'1Y':['Q1','Q2','Q3','Q4','now']}[CHART_RANGE];
+  document.getElementById('chartAxis').innerHTML=labels.map(function(l){return '<span>'+l+'</span>';}).join('');
+  chartGeo={s:s,W:W,X:X,Y:Y,labels:labels};}
+/* ── interactive crosshair: scrub the chart to read price + time bucket ── */
+(function(){var box=document.querySelector('.chartbox'),cv=document.getElementById('dellChart'),
+  cross=document.getElementById('chartCross'),tip=document.getElementById('chartTip');
+  if(!box||!cv||!cross||!tip)return;
+  function move(e){var g=chartGeo;if(!g)return;var r=cv.getBoundingClientRect();
+    var x=Math.max(0,Math.min(r.width,e.clientX-r.left));
+    var i=Math.round(x/(g.W||1)*(g.s.length-1));i=Math.max(0,Math.min(g.s.length-1,i));
+    var px=g.s[i],cx=g.X(i),cy=g.Y(px);
+    cross.style.left=cx+'px';cross.classList.add('on');
+    var lab=g.labels[Math.min(g.labels.length-1,Math.round(i/(g.s.length-1)*(g.labels.length-1)))]||'';
+    tip.innerHTML='<b>$'+px.toFixed(2)+'</b>'+(lab?'<span class="tip-t">'+lab+'</span>':'');
+    var tx=Math.max(38,Math.min(g.W-38,cx));tip.style.left=tx+'px';tip.classList.add('on');}
+  function leave(){cross.classList.remove('on');tip.classList.remove('on');}
+  cv.addEventListener('mousemove',move);cv.addEventListener('mouseleave',leave);
+  cv.addEventListener('touchmove',function(e){if(e.touches[0])move(e.touches[0]);},{passive:true});
+  cv.addEventListener('touchend',leave);})();
+document.getElementById('chartTabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');CHART_RANGE=b.dataset.r;drawChart();});
+addEventListener('resize',drawChart);
+
+function buildTape(){
+  var px=DELL_PX, pct=(px-317.05)/317.05*100;  // 1D vs prior close (2026-05-28)
+  var items=[
+    '<span class="it"><b>$DELL</b> <span class="px">$'+px.toFixed(2)+'</span> <span class="up">▲ +'+pct.toFixed(2)+'%</span></span>',
+    '<span class="it"><b>NYSE: DELL</b> <span class="px">Dell Technologies</span></span>',
+    '<span class="it">THE MACHINE PAYS YOU BACK</span>',
+    '<span class="it">REAL DELL STOCK <span class="sep">·</span> <span class="up">EVERY CYCLE</span></span>',
+    '<span class="it">HOLD <b>500K+</b> $DELL TO QUALIFY</span>',
+    '<span class="it"><span class="up">+276%</span> PAST YEAR <span class="sep">·</span> ALL DELL</span>',
+    '<span class="it">ONE STOCK <span class="sep">·</span> ALL DELL <span class="sep">·</span> NO OTHER TICKERS</span>'
+  ];
+  var one=items.join('');
+  document.getElementById('tape').innerHTML=one+one;}
+
+/* nudge the live price and move only the chart's last point — keeps the
+   start anchor (and therefore the % change) accurate, no baseline drift. */
+function drift(){var prev=DELL_PX;DELL_PX=Math.max(60,DELL_PX+(Math.random()-.49)*0.7);var s=seriesCache[CHART_RANGE];if(s){s[s.length-1]=DELL_PX;}drawChart();
+  var pv=document.getElementById('pxVal');if(pv&&Math.abs(DELL_PX-prev)>0.001){var cls=DELL_PX>=prev?'tickup':'tickdn';pv.classList.remove('tickup','tickdn');void pv.offsetWidth;pv.classList.add(cls);}}
+
+/* ---------- earnings calculator ---------- */
+function calcParse(s){ return Math.max(0, parseInt(String(s).replace(/[^0-9]/g,''),10)||0); }
+function avgDrop(){ var d=state.drops; if(!d.length) return 1.5; return d.reduce(function(a,x){return a+x.shares;},0)/d.length; }
+function updateCalc(){
+  var bag=calcParse(document.getElementById('bagInput').value);
+  var qual=qualified(); var qtot=qual.reduce(function(a,h){return a+h.bal;},0);
+  var inPool=bag>=MIN_HOLD;
+  var denom=qtot+(inPool?bag:0);
+  var share=inPool?bag/denom:0;
+  var perCycle=avgDrop()*share, perDay=perCycle*288, perWeek=perDay*7;
+  var dell=function(n){return n.toLocaleString(undefined,{minimumFractionDigits:4,maximumFractionDigits:4})+' DELL';};
+  var usd=function(n){return '≈ $'+(n*DELL_PX).toLocaleString(undefined,{maximumFractionDigits:2});};
+  document.getElementById('calcShare').textContent=inPool?(share*100).toFixed(4)+'%':'0%';
+  document.getElementById('calcCycle').textContent=dell(perCycle);
+  document.getElementById('calcDay').textContent=dell(perDay);
+  document.getElementById('calcWeek').textContent=dell(perWeek);
+  document.getElementById('calcCycleUsd').textContent=usd(perCycle);
+  document.getElementById('calcDayUsd').textContent=usd(perDay);
+  document.getElementById('calcWeekUsd').textContent=usd(perWeek);
+  var note=document.getElementById('calcQual');
+  if(inPool) note.innerHTML='✓ Qualifies — you\'d hold <b>'+(share*100).toFixed(3)+'%</b> of the qualified pot ('+qual.length+' holders).';
+  else note.innerHTML='✗ Below the <b>'+MIN_HOLD.toLocaleString()+'</b> minimum — top up to start earning.';
+  var mile=document.getElementById('calcMile');
+  if(mile){
+    if(inPool && perDay>0){
+      var daysToShare=1/perDay; // days to accumulate one whole DELL share (≈ $420.91)
+      var human;
+      if(daysToShare<1){ var hrs=daysToShare*24; human=(hrs<1?Math.round(hrs*60)+' min':hrs.toFixed(1)+' hrs'); }
+      else if(daysToShare<60) human=daysToShare.toFixed(daysToShare<10?1:0)+' days';
+      else if(daysToShare<730) human=(daysToShare/30.44).toFixed(1)+' months';
+      else human=(daysToShare/365).toFixed(1)+' years';
+      mile.innerHTML='At this rate you bank <b>1 whole DELL share</b> ($'+DELL_PX.toLocaleString(undefined,{maximumFractionDigits:2})+') every <b>'+human+'</b>.';
+    } else {
+      mile.innerHTML='Qualify to start banking real DELL — <b>one whole share = $'+DELL_PX.toLocaleString(undefined,{maximumFractionDigits:2})+'</b>.';
+    }
+  }
+  var sl=document.getElementById('bagSlider'); if(document.activeElement!==sl) sl.value=Math.min(bag, +sl.max);
+  document.querySelectorAll('.preset').forEach(function(p){p.classList.toggle('on', +p.dataset.v===bag);});
+}
+(function wireCalc(){
+  var inp=document.getElementById('bagInput'), sl=document.getElementById('bagSlider');
+  inp.addEventListener('input', function(){ var c=calcParse(inp.value); inp.value=c?c.toLocaleString():''; updateCalc(); });
+  sl.addEventListener('input', function(){ inp.value=(+sl.value).toLocaleString(); updateCalc(); });
+  document.querySelectorAll('.preset').forEach(function(p){ p.addEventListener('click', function(){ inp.value=(+p.dataset.v).toLocaleString(); sl.value=p.dataset.v; updateCalc(); }); });
+  updateCalc();
+})();
+
+/* ---------- interactive Dell computer · Trump's Truth Social ---------- */
+(function truthSocial(){
+  var feed=document.getElementById('tsFeed'); if(!feed) return;
+  var TRUTHS=[
+    "Just got a brand new $DELL computer. The BEST computer, everybody is saying it. TREMENDOUS machine, folks!! 🇺🇸",
+    "$DELL is going to the MOON. Michael Dell — great guy, great American. Believe me!",
+    "The Radical Left won't tell you about $DELL. SAD! But the holders? Getting RICH. WINNING!",
+    "Get yourself a $DELL. Get the airdrop. It's a beautiful thing, folks. Nobody does it better!",
+    "DELL — strong, powerful, AMERICAN computers. We're bringing the chip jobs HOME. MAGA!",
+    "They laughed when I said buy $DELL. Nobody's laughing now. Up BIGLY. So much winning!",
+    "Real stock, in your wallet, EVERY cycle. Only $DELL does this. The others? Total disasters!",
+    "I know computers better than anybody, and I'm telling you — $DELL is the REAL DEAL. Huge!",
+    "They want to take your airdrop away. NOT ON MY WATCH! $DELL holders keep EVERY share. Promises made, promises KEPT!",
+    "Wall Street fat cats are SHAKING. A laptop coin that ships REAL stock?? Only in AMERICA. Only $DELL. So beautiful!"
+  ];
+  var posts=[],idc=0;
+  function fmtAgo(ts){var s=Math.floor((Date.now()-ts)/1000);if(s<5)return 'now';if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m';return Math.floor(s/3600)+'h';}
+  function K(n){return n>=1000?(n/1000).toFixed(n>=10000?0:1)+'K':String(n);}
+  function hl(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\$DELL/g,'<span class="cash">$DELL</span>').replace(/\$Dell/gi,'<span class="cash">$Dell</span>');}
+  function render(){
+    feed.innerHTML=posts.map(function(p){
+      return '<div class="tsp" data-id="'+p.id+'">'+(p.retruthBy?'<div class="ts__retruth">⟳ '+p.retruthBy+' ReTruthed</div>':'')
+        +'<div class="tsp__h"><div class="tsp__av '+p.avCls+'">'+p.avText+'</div><div><div class="tsp__nm">'+p.name+(p.verified?' <span class="ts__check">✓</span>':'')+'</div><div class="tsp__hd">'+p.handle+' · '+fmtAgo(p.ts)+'</div></div></div>'
+        +'<div class="tsp__body">'+hl(p.text)+(p.typing?'<span class="tsp__cur"></span>':'')+'</div>'
+        +(p.typing?'':'<div class="tsp__acts"><span class="tsp__act'+(p.liked?' liked':'')+'" data-a="like">♥ '+K(p.likes)+'</span><span class="tsp__act'+(p.retruthed?' retruthed':'')+'" data-a="rt">⟳ '+K(p.retruths)+'</span><span class="tsp__act" data-a="reply">💬 '+K(p.replies)+'</span></div>')+'</div>';
+    }).join('');
+  }
+  function push(p){posts.unshift(p);if(posts.length>16)posts.pop();}
+  function addTrump(text){
+    var p={id:++idc,name:'Donald J. Trump',verified:true,handle:'@realDonaldTrump',avText:'DJT',avCls:'trump',text:'',ts:Date.now(),likes:0,retruths:0,replies:0,typing:true};
+    push(p);render();var i=0;
+    (function type(){ if(i<=text.length){p.text=text.slice(0,i);i++;render();setTimeout(type,16+Math.random()*42);} else {p.typing=false;p.likes=Math.floor(rnd(9000,48000));p.retruths=Math.floor(rnd(2200,13000));p.replies=Math.floor(rnd(500,4200));render();} })();
+  }
+  function addUser(text){
+    var p={id:++idc,name:'You',verified:false,handle:'@holder',avText:'YOU',avCls:'you',text:text,ts:Date.now(),likes:Math.floor(rnd(3,40)),retruths:0,replies:0};
+    push(p);render();
+    setTimeout(function(){p.retruthBy='Donald J. Trump';p.retruths+=1;p.likes+=Math.floor(rnd(400,2600));render();if(typeof showToast==='function')showToast('🇺🇸 Trump ReTruthed your Truth!');},1700);
+  }
+  ['$DELL stock UP BIGLY today. +32%! Best day EVER. They said it couldn\'t be done — WRONG!',"Nobody makes computers like DELL. Nobody! And now they PAY YOU BACK. Only on pump.fun!","We love DELL. We love AMERICA. Buy $DELL — you're gonna be so happy, believe me!"]
+    .forEach(function(t,i){posts.push({id:++idc,name:'Donald J. Trump',verified:true,handle:'@realDonaldTrump',avText:'DJT',avCls:'trump',text:t,ts:Date.now()-(i+1)*460000,likes:Math.floor(rnd(11000,42000)),retruths:Math.floor(rnd(2600,12000)),replies:Math.floor(rnd(700,3800))});});
+  render();
+  feed.addEventListener('click',function(e){var a=e.target.closest('.tsp__act');if(!a)return;var card=e.target.closest('.tsp');var p=posts.filter(function(x){return x.id===+card.dataset.id;})[0];if(!p)return;
+    var burst=false;
+    if(a.dataset.a==='like'){p.liked=!p.liked;p.likes+=p.liked?1:-1;burst=p.liked;}
+    else if(a.dataset.a==='rt'){p.retruthed=!p.retruthed;p.retruths+=p.retruthed?1:-1;}
+    else if(a.dataset.a==='reply'){p.replies+=1;}
+    var hx,hy;if(burst){var fr=feed.getBoundingClientRect(),ar=a.getBoundingClientRect();hx=ar.left-fr.left+feed.scrollLeft+10;hy=ar.top-fr.top+feed.scrollTop+8;}
+    render();
+    if(burst){for(var hi=0;hi<3;hi++){(function(d){var h=document.createElement('span');h.className='heartpop';h.textContent='♥';h.style.left=(hx+(d-1)*9)+'px';h.style.top=hy+'px';h.style.animationDelay=(d*70)+'ms';feed.appendChild(h);setTimeout(function(){h.remove();},760+d*70);})(hi);}}});
+  var inp=document.getElementById('tsInput'),btn=document.getElementById('tsPost');
+  (function trending(){var trend=document.getElementById('tsTrend');if(!trend)return;
+    var TAGS=['#DELL','#OneStockAllDell','#MAGA','#AirdropSZN','#WINNING','#BuyTheDip'];
+    trend.insertAdjacentHTML('beforeend',TAGS.map(function(t){return '<button type="button" class="ts__tag">'+t+'</button>';}).join(''));
+    trend.addEventListener('click',function(e){var b=e.target.closest('.ts__tag');if(!b||!inp)return;
+      inp.value=(inp.value.trim()+' '+b.textContent).trim()+' ';inp.dispatchEvent(new Event('input'));inp.focus();});})();
+  var cc=document.getElementById('tsCount');
+  function updCount(){if(!cc)return;var rem=180-inp.value.length;cc.textContent=rem;cc.classList.toggle('warn',rem<=24&&rem>8);cc.classList.toggle('over',rem<=8);}
+  function post(){var v=inp.value.trim();if(!v)return;addUser(v);inp.value='';updCount();}
+  inp.addEventListener('input',updCount);updCount();
+  btn.addEventListener('click',post);inp.addEventListener('keydown',function(e){if(e.key==='Enter')post();});
+  var fb=document.getElementById('tsFollow');fb.addEventListener('click',function(){var on=fb.classList.toggle('on');fb.textContent=on?'Following ✓':'Follow';if(on&&typeof showToast==='function')showToast('Now following @realDonaldTrump');});
+  var pool=TRUTHS.slice(),used=[];
+  setInterval(function(){if(document.hidden)return;if(!pool.length){pool=used;used=[];}var t=pool.splice(Math.floor(Math.random()*pool.length),1)[0];used.push(t);addTrump(t);},15000);
+  setInterval(function(){if(posts.length)render();},5000); // keep "x m" timestamps fresh
+  // drag the whole computer by the Truth Social title bar
+  var comp=document.getElementById('computer'),bar=document.getElementById('tsDrag'),dx=0,dy=0,ox=0,oy=0,drag=false;
+  bar.addEventListener('pointerdown',function(e){drag=true;ox=e.clientX-dx;oy=e.clientY-dy;try{bar.setPointerCapture(e.pointerId);}catch(_){}});
+  bar.addEventListener('pointermove',function(e){if(!drag)return;dx=Math.max(-240,Math.min(240,e.clientX-ox));dy=Math.max(-90,Math.min(180,e.clientY-oy));comp.style.transform='translate('+dx+'px,'+dy+'px) rotate('+(dx*0.012)+'deg)';});
+  function end(){drag=false;}bar.addEventListener('pointerup',end);bar.addEventListener('pointercancel',end);
+})();
+
+injectEmblems();buildTape();drawChart();render();
+sync();
+setInterval(render,400);
+setInterval(sync,4000);
+setInterval(drift,4000);
+['buyTop','buyHero','buyBtn'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(el.dataset.live)return;e.preventDefault();showToast('Buy link goes live once the $DELL mint is set.');});});
+
+/* FAQ: animated accordion — open one at a time, smooth grid-rows reveal */
+(function(){
+  var faqs=[].slice.call(document.querySelectorAll('.faq .qa'));
+  function close(q){ if(!q.classList.contains('qa-show'))return; q.classList.remove('qa-show');
+    var done=function(){ q.removeAttribute('open'); q.removeEventListener('transitionend',done); };
+    var wrap=q.querySelector('.qa-wrap');
+    if(wrap)wrap.addEventListener('transitionend',function h(e){ if(e.propertyName==='grid-template-rows'){wrap.removeEventListener('transitionend',h);done();} });
+    else done();
+  }
+  function open(q){ q.setAttribute('open',''); requestAnimationFrame(function(){q.classList.add('qa-show');}); }
+  faqs.forEach(function(q){
+    var sum=q.querySelector('summary');
+    sum.addEventListener('click',function(e){
+      e.preventDefault();
+      var isOpen=q.classList.contains('qa-show');
+      faqs.forEach(function(o){ if(o!==q) close(o); });
+      if(isOpen) close(q); else open(q);
+    });
+  });
+})();
+</script>
+</body>
+</html>
