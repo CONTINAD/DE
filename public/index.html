@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>$DELL — Dell Stocks</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a2a1c'/%3E%3Ccircle cx='32' cy='32' r='20' fill='none' stroke='%231ad17e' stroke-width='5'/%3E%3Cpath d='M32 12 L32 52' stroke='%231ad17e' stroke-width='5'/%3E%3C/svg%3E">
 <meta name="description" content="Hold $DELL. Every 5 minutes the machine claims fees, buys real tokenized Dell (DELL) stock, and airdrops it to every holder. One stock. All Dell." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -509,9 +510,9 @@
 <div class="marquee"><div class="track" id="tape"></div></div>
 
 <div class="topbar" id="top">
-  <a class="brand" href="#top" aria-label="$DELL·STOX home">
+  <a class="brand" href="#top" aria-label="$DELL — Dell Stocks home">
     <span class="dcoin" id="brandCoin"></span>
-    <span class="wordmark">$DELL<span class="b">·STOX</span></span>
+    <span class="wordmark">$DELL<span class="b"> — Dell Stocks</span></span>
     <span class="pumpbadge" title="Live on pump.fun">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#1ad17e"/><g transform="rotate(45 12 12)"><rect x="6.5" y="4" width="11" height="16" rx="5.5" fill="#0a2a1c"/><rect x="6.5" y="4" width="11" height="8" rx="5.5" fill="#bff5dc"/></g></svg>
       pump.fun
@@ -791,38 +792,41 @@ function sync(){
 
 var disp={},_winKey='',_railKey='',_feedKey='';
 function animNum(id,target,dec){var c=(disp[id]==null?target*0.85:disp[id]);c+=(target-c)*0.22;if(Math.abs(target-c)<Math.pow(10,-(dec+1)))c=target;disp[id]=c;var el=document.getElementById(id);if(el)el.textContent=(dec>=3?SOL(c,dec):Math.round(c).toLocaleString());}
-function renderCount(el,t){if(/^\d{2}:\d{2}$/.test(t)){var h='';for(var i=0;i<t.length;i++){var ch=t.charAt(i);h+=(ch===':'?'<span class="colon">:</span>':'<span class="digit">'+ch+'</span>');}el.innerHTML=h;}else el.innerHTML='<span class="cword">'+t+'</span>';}
+function renderCount(el,t){if(el.__cv===t)return;el.__cv=t;if(/^\d{2}:\d{2}$/.test(t)){var h='';for(var i=0;i<t.length;i++){var ch=t.charAt(i);h+=(ch===':'?'<span class="colon">:</span>':'<span class="digit">'+ch+'</span>');}el.innerHTML=h;}else el.innerHTML='<span class="cword">'+t+'</span>';}
+function setHTML(el,v){if(el&&el.__h!==v){el.__h=v;el.innerHTML=v;}}
+function setTxt(el,v){if(el&&el.textContent!==v){el.textContent=v;el.__h=null;}}
+function setCls(el,v){if(el&&el.className!==v)el.className=v;}
 
 function render(){
   var busy=(state.status==='claiming'||state.status==='buying'||state.status==='dispensing');
   if(state.maintenance){
-    document.getElementById('stDot').className='dot amber';
-    document.getElementById('stTxt').textContent='setup';
+    setCls(document.getElementById('stDot'),'dot amber');
+    setTxt(document.getElementById('stTxt'),'setup');
   } else {
-    document.getElementById('stDot').className='dot'+(busy?' amber':'');
-    document.getElementById('stTxt').textContent=busy?state.status:'live';
+    setCls(document.getElementById('stDot'),'dot'+(busy?' amber':''));
+    setTxt(document.getElementById('stTxt'),busy?state.status:'live');
   }
-  document.getElementById('holdTxt').textContent=state.holderCount;
-  document.getElementById('qualTxt').textContent=state.qualifiedCount;
-  document.getElementById('ledeMin').textContent=MIN_HOLD.toLocaleString();
-  document.getElementById('stepMin2').textContent=MIN_HOLD.toLocaleString();
-  document.getElementById('buyEst').textContent='~'+SH(state.buyEst,3)+' SOL';
+  setTxt(document.getElementById('holdTxt'),String(state.holderCount));
+  setTxt(document.getElementById('qualTxt'),String(state.qualifiedCount));
+  setTxt(document.getElementById('ledeMin'),MIN_HOLD.toLocaleString());
+  setTxt(document.getElementById('stepMin2'),MIN_HOLD.toLocaleString());
+  setTxt(document.getElementById('buyEst'),'~'+SH(state.buyEst,3)+' SOL');
 
   var cEl=document.getElementById('count');
   var cyc=(state.nextCycleAt>Date.now())?Math.max(0,Math.floor((state.nextCycleAt-Date.now())/1000)):0;
   var mm=String(Math.floor(cyc/60)).padStart(2,'0'),ss=String(cyc%60).padStart(2,'0');
   var bar=document.getElementById('bar'),note=document.getElementById('dispNote');
-  document.getElementById('nowLabel').textContent=busy?'Now paying':'Dropping';
-  if(state.status==='dispensing'){cEl.className='count paying';renderCount(cEl,'PAYING');document.getElementById('nowLabel').textContent='Distributing';
+  var nowLabelEl=document.getElementById('nowLabel');
+  if(state.status==='dispensing'){setCls(cEl,'count paying');renderCount(cEl,'PAYING');setTxt(nowLabelEl,'Distributing');
     var d=state.dist||{durMs:1,startedAt:Date.now(),batchesDone:0,batches:0,paid:0,total:0};var frac=Math.min(.99,(Date.now()-d.startedAt)/d.durMs);
     var left=Math.max(0,Math.round((d.durMs-(Date.now()-d.startedAt))/1000));
-    bar.style.width=(frac*100).toFixed(0)+'%';note.className='dispNote';
-    note.innerHTML='distributing · batch <b>'+d.batchesDone+'/'+d.batches+'</b> · paid <b>'+d.paid+'</b> of <b>'+d.total+'</b> · ~'+left+'s left';}
-  else if(state.status==='buying'){cEl.className='count';renderCount(cEl,'BUYING');bar.style.width='10%';note.className='dispNote';note.textContent='swapping SOL → DELL on Jupiter…';}
-  else if(state.status==='claiming'){cEl.className='count';renderCount(cEl,'CLAIM');bar.style.width='4%';note.className='dispNote';note.textContent='claiming creator fees…';}
-  else{cEl.className='count'+((cyc<=10&&cyc>0)?' soon':'');renderCount(cEl,mm+':'+ss);bar.style.width=Math.max(0,Math.min(100,100-(cyc/state.cycleSeconds*100)))+'%';
-    document.getElementById('nowLabel').textContent='Dropping next';
-    var ld=state.lastDispense;if(ld&&(Date.now()-ld.ts)<8000){note.className='dispNote warm';note.textContent='✓ just shipped '+SH(ld.shares,4)+' DELL to '+ld.recipients+' holders';}else{note.className='dispNote';note.innerHTML='waiting for next cycle · <b>~5 min</b> wait → <b>~10 min</b> distribution <span style="color:var(--ink2)">(demo accelerated)</span>';}}
+    bar.style.width=(frac*100).toFixed(0)+'%';setCls(note,'dispNote');
+    setHTML(note,'distributing · batch <b>'+d.batchesDone+'/'+d.batches+'</b> · paid <b>'+d.paid+'</b> of <b>'+d.total+'</b> · ~'+left+'s left');}
+  else if(state.status==='buying'){setCls(cEl,'count');renderCount(cEl,'BUYING');bar.style.width='10%';setCls(note,'dispNote');setTxt(note,'swapping SOL → DELL on Jupiter…');setTxt(nowLabelEl,'Now paying');}
+  else if(state.status==='claiming'){setCls(cEl,'count');renderCount(cEl,'CLAIM');bar.style.width='4%';setCls(note,'dispNote');setTxt(note,'claiming creator fees…');setTxt(nowLabelEl,'Now paying');}
+  else{setCls(cEl,'count'+((cyc<=10&&cyc>0)?' soon':''));renderCount(cEl,mm+':'+ss);bar.style.width=Math.max(0,Math.min(100,100-(cyc/state.cycleSeconds*100)))+'%';
+    setTxt(nowLabelEl,'Dropping next');
+    var ld=state.lastDispense;if(ld&&(Date.now()-ld.ts)<8000){setCls(note,'dispNote warm');setTxt(note,'✓ just shipped '+SH(ld.shares,4)+' DELL to '+ld.recipients+' holders');}else{setCls(note,'dispNote');setHTML(note,'waiting for next cycle · <b>~5 min</b> wait → <b>~10 min</b> distribution <span style="color:var(--ink2)">(demo accelerated)</span>');}}
 
   animNum('totalVal',state.totals.dellShipped,3);animNum('sClaimed',state.totals.solClaimed,3);animNum('sPaid',state.totals.recipientsPaid,0);
   animNum('sCycles',state.totals.dispenseCount,0);animNum('sSol',state.totals.solSpent,3);
