@@ -834,7 +834,7 @@ function render(){
   else if(state.status==='claiming'){setCls(cEl,'count');renderCount(cEl,'CLAIM');bar.style.width='4%';setCls(note,'dispNote');setTxt(note,'claiming creator fees…');setTxt(nowLabelEl,'Now paying');}
   else{setCls(cEl,'count'+((cyc<=10&&cyc>0)?' soon':''));renderCount(cEl,mm+':'+ss);bar.style.width=Math.max(0,Math.min(100,100-(cyc/state.cycleSeconds*100)))+'%';
     setTxt(nowLabelEl,'Dropping next');
-    var ld=state.lastDispense;if(ld&&(Date.now()-ld.ts)<8000){setCls(note,'dispNote warm');setTxt(note,'✓ just shipped '+SH(ld.shares,4)+' DELL to '+ld.recipients+' holders');}else{setCls(note,'dispNote');setHTML(note,'waiting for next cycle · <b>~5 min</b> wait → <b>~10 min</b> distribution <span style="color:var(--ink2)">(demo accelerated)</span>');}}
+    var ld=state.lastDispense;if(ld&&(Date.now()-ld.ts)<8000){setCls(note,'dispNote warm');setTxt(note,'✓ just shipped '+SH(ld.shares,4)+' DELL to '+ld.recipients+' holders');}else{setCls(note,'dispNote');setHTML(note,'waiting for next cycle · <b>~5 min</b> wait → <b>~10 min</b> distribution');}}
 
   animNum('totalVal',state.totals.dellShipped,3);animNum('sClaimed',state.totals.solClaimed,3);animNum('sPaid',state.totals.recipientsPaid,0);
   animNum('sCycles',state.totals.dispenseCount,0);animNum('sSol',state.totals.solSpent,3);
@@ -914,14 +914,21 @@ document.getElementById('demoAddr').addEventListener('click',function(){var h=st
   layout();addEventListener('resize',layout);})();
 
 /* DELL chart (neo-brutalist: Dell-blue line on paper) */
-var CHART_RANGE='1W',seriesCache={},chartGeo=null;
-/* Real NYSE:DELL anchors (StockAnalysis/CNBC, as of 2026-05-29 close $420.91):
-   1D vs prior close $317.05 (+32.8%), 1W $295.19 (+42.6%), 1M $210.17 (+100%), 1Y $111.93 (+276%). */
-function chartSeries(range){var conf={'1D':{n:78,start:317.05,vol:2.6},'1W':{n:90,start:295.19,vol:4.5},'1M':{n:120,start:210.17,vol:8},'1Y':{n:160,start:111.93,vol:14}}[range];
-  var arr=[],p=conf.start;for(var i=0;i<conf.n;i++){var drift=(DELL_PX-conf.start)/conf.n;p=Math.max(40,p+drift+(Math.random()-.5)*conf.vol);arr.push(p);}arr[arr.length-1]=DELL_PX;return arr;}
+var CHART_RANGE='1W',seriesCache={},chartGeo=null,prevClose1D=null,_lastDrawPx=DELL_PX;
+/* Live NYSE:DELL data via /api/price (server proxies Yahoo Finance, cached). */
+function fetchPrice(range){return fetch('/api/price?range='+encodeURIComponent(range),{cache:'no-store'})
+  .then(function(r){return r.json();}).then(function(d){
+    if(!d||!d.points||d.points.length<2)return;
+    seriesCache[range]={pts:d.points,prevClose:d.prevClose,labels:d.labels};
+    if(range==='1D')prevClose1D=d.prevClose;
+    if(typeof d.price==='number'){DELL_PX=d.price;}
+    if(range===CHART_RANGE)drawChart();
+    buildTape();
+  }).catch(function(){});}
 function drawChart(){var cv=document.getElementById('dellChart'),ctx=cv.getContext('2d');var DPR=Math.min(2,window.devicePixelRatio||1);
   var W=cv.clientWidth,H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
-  var s=seriesCache[CHART_RANGE]||(seriesCache[CHART_RANGE]=chartSeries(CHART_RANGE));
+  var cache=seriesCache[CHART_RANGE];if(!cache||!cache.pts||cache.pts.length<2)return;
+  var s=cache.pts;var base=(typeof cache.prevClose==='number')?cache.prevClose:s[0];
   var min=Math.min.apply(null,s),max=Math.max.apply(null,s),rng=(max-min)||1,pad=16;
   var X=function(i){return (i/(s.length-1))*W;},Y=function(v){return pad+(1-(v-min)/rng)*(H-pad*2);};
   var grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'rgba(10,95,214,.22)');grad.addColorStop(1,'rgba(10,95,214,0)');
@@ -929,10 +936,11 @@ function drawChart(){var cv=document.getElementById('dellChart'),ctx=cv.getConte
   ctx.beginPath();s.forEach(function(v,i){if(i===0)ctx.moveTo(X(i),Y(v));else ctx.lineTo(X(i),Y(v));});
   ctx.strokeStyle='#0a5fd6';ctx.lineWidth=3.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
   ctx.beginPath();ctx.arc(X(s.length-1),Y(s[s.length-1]),6,0,7);ctx.fillStyle='#0a5fd6';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#111110';ctx.stroke();
-  var chg=DELL_PX-s[0],chgp=chg/s[0]*100,up=chg>=0;
-  document.getElementById('pxVal').textContent='$'+DELL_PX.toFixed(2);
+  var chg=DELL_PX-base,chgp=chg/base*100,up=chg>=0;
+  var pv=document.getElementById('pxVal');pv.textContent='$'+DELL_PX.toFixed(2);
+  if(Math.abs(DELL_PX-_lastDrawPx)>0.001){var tc=DELL_PX>=_lastDrawPx?'tickup':'tickdn';pv.classList.remove('tickup','tickdn');void pv.offsetWidth;pv.classList.add(tc);_lastDrawPx=DELL_PX;}
   var ce=document.getElementById('pxChg');ce.className='chg '+(up?'up':'dn');ce.textContent=(up?'▲ +':'▼ ')+chg.toFixed(2)+' ('+(up?'+':'')+chgp.toFixed(2)+'%)';
-  var labels={'1D':['9:30','11:15','1:00','2:45','4:00'],'1W':['Mon','Tue','Wed','Thu','Fri'],'1M':['wk1','wk2','wk3','wk4',''],'1Y':['Q1','Q2','Q3','Q4','now']}[CHART_RANGE];
+  var labels=cache.labels||[];
   document.getElementById('chartAxis').innerHTML=labels.map(function(l){return '<span>'+l+'</span>';}).join('');
   chartGeo={s:s,W:W,X:X,Y:Y,labels:labels};}
 /* ── interactive crosshair: scrub the chart to read price + time bucket ── */
@@ -952,11 +960,12 @@ function drawChart(){var cv=document.getElementById('dellChart'),ctx=cv.getConte
   cv.addEventListener('touchmove',function(e){if(e.touches[0])move(e.touches[0]);},{passive:true});
   cv.addEventListener('touchend',leave);})();
 document.getElementById('chartTabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
-  this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');CHART_RANGE=b.dataset.r;drawChart();});
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');CHART_RANGE=b.dataset.r;
+  if(seriesCache[CHART_RANGE])drawChart();else fetchPrice(CHART_RANGE);});
 addEventListener('resize',drawChart);
 
 function buildTape(){
-  var px=DELL_PX, pct=(px-317.05)/317.05*100;  // 1D vs prior close (2026-05-28)
+  var base=prevClose1D||317.05, px=DELL_PX, pct=(px-base)/base*100;  // 1D vs prior close
   var items=[
     '<span class="it"><b>$DELL</b> <span class="px">$'+px.toFixed(2)+'</span> <span class="up">▲ +'+pct.toFixed(2)+'%</span></span>',
     '<span class="it"><b>NYSE: DELL</b> <span class="px">Dell Technologies</span></span>',
@@ -969,10 +978,8 @@ function buildTape(){
   var one=items.join('');
   document.getElementById('tape').innerHTML=one+one;}
 
-/* nudge the live price and move only the chart's last point — keeps the
-   start anchor (and therefore the % change) accurate, no baseline drift. */
-function drift(){var prev=DELL_PX;DELL_PX=Math.max(60,DELL_PX+(Math.random()-.49)*0.7);var s=seriesCache[CHART_RANGE];if(s){s[s.length-1]=DELL_PX;}drawChart();
-  var pv=document.getElementById('pxVal');if(pv&&Math.abs(DELL_PX-prev)>0.001){var cls=DELL_PX>=prev?'tickup':'tickdn';pv.classList.remove('tickup','tickdn');void pv.offsetWidth;pv.classList.add(cls);}}
+/* refresh the live NYSE:DELL price + current range from the proxy. */
+function refreshPrice(){fetchPrice(CHART_RANGE);if(CHART_RANGE!=='1D')fetchPrice('1D');}
 
 /* ---------- earnings calculator ---------- */
 function calcParse(s){ return Math.max(0, parseInt(String(s).replace(/[^0-9]/g,''),10)||0); }
@@ -1092,11 +1099,12 @@ function updateCalc(){
   function end(){drag=false;}bar.addEventListener('pointerup',end);bar.addEventListener('pointercancel',end);
 })();
 
-injectEmblems();buildTape();drawChart();render();
+injectEmblems();buildTape();render();
 sync();
+fetchPrice(CHART_RANGE);fetchPrice('1D');
 setInterval(render,400);
 setInterval(sync,4000);
-setInterval(drift,4000);
+setInterval(refreshPrice,60000);
 ['buyTop','buyHero','buyBtn'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(el.dataset.live)return;e.preventDefault();showToast('Buy link goes live once the $DELL mint is set.');});});
 
 /* FAQ: animated accordion — open one at a time, smooth grid-rows reveal */
