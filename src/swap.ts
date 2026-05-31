@@ -7,7 +7,7 @@ import {
 import { connection, ata2022, getRawTokenBalance } from "./wallet";
 import { config } from "./config";
 import { logger } from "./logger";
-import { SOL_MINT, type Stock } from "./rotation";
+import { SOL_MINT, fallbackStocks, type Stock } from "./rotation";
 
 export interface SwapResult {
   signature: string;
@@ -69,6 +69,26 @@ export async function quoteSolToStock(stock: Stock, solLamports: number): Promis
     logger.warn(`Jupiter quote failed for ${stock.symbol}: ${e instanceof Error ? e.message : e}`);
     return null;
   }
+}
+
+/** True if Jupiter has a live SOL → stock route for roughly this buy size. */
+export async function isTradable(stock: Stock, solLamports: number): Promise<boolean> {
+  const q = await quoteSolToStock(stock, Math.max(1, Math.floor(solLamports)));
+  return !!q;
+}
+
+/**
+ * Decide which stock to actually buy this cycle. Always prefers `primary`
+ * (DELL); if DELL has no on-chain market, returns the first tradable fallback
+ * stock so holders still get paid real tokenized equity. Returns null only if
+ * neither DELL nor any fallback is tradable (then the pool carries over).
+ */
+export async function resolvePayableStock(primary: Stock, solLamports: number): Promise<Stock | null> {
+  if (await isTradable(primary, solLamports)) return primary;
+  for (const fb of fallbackStocks(primary)) {
+    if (await isTradable(fb, solLamports)) return fb;
+  }
+  return null;
 }
 
 /**

@@ -47,6 +47,33 @@ export const STOCKS: Record<string, Stock> = {
 // $DELL is a single-stock machine: every cycle buys & airdrops DELL.
 const DEFAULT_ORDER = ["DELLx"];
 
+// Auto-fallback: DELLx currently has NO on-chain market (zero liquidity, no
+// Jupiter route), so it physically can't be bought. To keep holders paid real
+// tokenized equity every cycle, when DELL is untradable the machine buys the
+// first liquid stock from this list instead — and automatically switches back
+// to DELL the moment a DELL market appears. Override with STOCK_FALLBACK
+// (comma-separated symbols). Set STOCK_FALLBACK="" to disable and only ever
+// pay DELL (pool then carries over until DELL is tradable).
+const DEFAULT_FALLBACK = ["AAPLx", "NVDAx", "TSLAx", "SPYx", "MSFTx"];
+
+function buildFallback(): Stock[] {
+  const raw = process.env.STOCK_FALLBACK?.trim();
+  if (raw === "") return [];
+  const order = raw
+    ? raw.split(",").map((s) => s.trim()).filter(Boolean)
+    : DEFAULT_FALLBACK;
+  return order
+    .map((sym) => STOCKS[sym] || STOCKS[sym + "x"] || STOCKS[sym.toUpperCase()] || STOCKS[sym.toUpperCase() + "x"])
+    .filter((s): s is Stock => !!s);
+}
+
+export const FALLBACK: Stock[] = buildFallback();
+
+/** Fallback candidates to try (in order) when the primary stock is untradable. */
+export function fallbackStocks(primary: Stock): Stock[] {
+  return FALLBACK.filter((s) => s.mint !== primary.mint);
+}
+
 function buildRotation(): Stock[] {
   const raw = process.env.STOCK_ROTATION?.trim();
   if (!raw) return DEFAULT_ORDER.map((s) => STOCKS[s]);

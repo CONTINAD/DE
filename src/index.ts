@@ -19,7 +19,7 @@ import {
   dispenseStock,
   PAYOUT_BATCH_SIZE,
 } from "./payout";
-import { buyStock } from "./swap";
+import { buyStock, resolvePayableStock } from "./swap";
 import { ROTATION, stockForCycle } from "./rotation";
 import { logger } from "./logger";
 
@@ -200,6 +200,26 @@ async function main() {
         return;
       }
 
+      // ── 2.5 Resolve the stock we can actually buy this cycle ─────────────
+      // Target is always DELL. DELL currently has no on-chain market, so if it
+      // isn't tradable we buy the most liquid fallback stock instead (holders
+      // still get real tokenized equity) and auto-switch back to DELL the
+      // moment a DELL market exists. If nothing is tradable, the pool carries
+      // over untouched.
+      const payStock = await resolvePayableStock(stock, dispensable);
+      if (!payStock) {
+        tracker.recordError(`$${stock.ticker} has no market and no fallback was tradable — pool carries over.`);
+        return;
+      }
+      const usingFallback = payStock.mint !== stock.mint;
+      if (usingFallback) {
+        tracker.recordInfo(
+          `$${stock.ticker} has no on-chain market yet — paying out $${payStock.ticker} this cycle; ` +
+          `auto-switching back to $${stock.ticker} once it's tradable.`
+        );
+        tracker.cycleStart({ symbol: payStock.symbol, ticker: payStock.ticker, name: payStock.name });
+      }
+
       // ── 3. Snapshot holders, qualify, find brand-new ATAs ────────────────
       let holders: HolderEntry[] = [];
       try {
@@ -221,7 +241,7 @@ async function main() {
 
       // How many of these holders need a fresh stock ATA this cycle (the only
       // real per-holder SOL cost). Only that many rents must be reserved.
-      const stockMint = new PublicKey(stock.mint);
+      const stockMint = new PublicKey(payStock.mint);
       const holderAtas = qualified.map((h) => ata2022(new PublicKey(h.owner), stockMint));
       const exist = await whichAtasExist(holderAtas);
       const newAtaCount = exist.filter((e) => !e).length;
@@ -241,20 +261,20 @@ async function main() {
       }
 
       logger.info(
-        `Cycle #${cycleNumber} $${stock.ticker}: pool ${poolSol.toFixed(5)} SOL · spend ${(dispensable / LAMPORTS_PER_SOL).toFixed(5)} ` +
+        `Cycle #${cycleNumber} $${payStock.ticker}: pool ${poolSol.toFixed(5)} SOL · spend ${(dispensable / LAMPORTS_PER_SOL).toFixed(5)} ` +
         `(buy ${(swapLamports / LAMPORTS_PER_SOL).toFixed(5)}, reserve ${(reservedCostLamports / LAMPORTS_PER_SOL).toFixed(5)} for ${newAtaCount} new ATAs) · ${qualified.length} holders`
       );
 
       // ── 4. Buy the stock on Jupiter ──────────────────────────────────────
       const balBeforeSpend = Math.floor((await getSolBalance(treasury.publicKey)) * LAMPORTS_PER_SOL);
-      const swap = await buyStock(treasury, stock, swapLamports);
+      const swap = await buyStock(treasury, payStock, swapLamports);
       if (!swap || swap.receivedRaw <= 0n) {
         const spentNow = balBeforeSpend - Math.floor((await getSolBalance(treasury.publicKey)) * LAMPORTS_PER_SOL);
         if (spentNow > 0) tracker.debitClaimPool(spentNow); // account any tx fee burned
-        tracker.recordError(`Could not buy $${stock.ticker} this cycle — pool carries over.`);
+        tracker.recordError(`Could not buy $${payStock.ticker} this cycle — pool carries over.`);
         return;
       }
-      tracker.recordSwap({ stock, solSpent: swap.spentLamports / LAMPORTS_PER_SOL, receivedUi: swap.receivedUi, txSignature: swap.signature });
+      tracker.recordSwap({ stock: payStock, solSpent: swap.spentLamports / LAMPORTS_PER_SOL, receivedUi: swap.receivedUi, txSignature: swap.signature });
 
       // ── 5. Build the proportional plan over the stock we actually got ────
       const plan = computeProportionalStockPayouts(qualified, swap.receivedRaw, config.maxRecipientsPerCycle);
@@ -266,7 +286,7 @@ async function main() {
       }
 
       const totalPlanRaw = plan.reduce((s, p) => s + p.amountRaw, 0n);
-      const totalPlanUi = Number(totalPlanRaw) / 10 ** stock.decimals;
+      const totalPlanUi = Number(totalPlanRaw) / 10 ** payStock.decimals;
 
       // ── 6. Airdrop the stock to every qualified holder ───────────────────
       // Build the "new ATA" set (only these holders need rent paid this cycle)
@@ -276,11 +296,11 @@ async function main() {
       const newAtaOwners = new Set<string>();
       qualified.forEach((h, i) => { if (!exist[i]) newAtaOwners.add(h.owner); });
       const ataRentLamports = await discoverAtaRent(stockMint);
-      tracker.startDispenseAnimation({ stock, recipientCount: plan.length, totalUi: totalPlanUi, solSpent: swap.spentLamports / LAMPORTS_PER_SOL });
+      tracker.startDispenseAnimation({ stock: payStock, recipientCount: plan.length, totalUi: totalPlanUi, solSpent: swap.spentLamports / LAMPORTS_PER_SOL });
       try {
-        const results = await dispenseStock(treasury, stock, plan, { ataRentLamports, newAtaOwners });
+        const results = await dispenseStock(treasury, payStock, plan, { ataRentLamports, newAtaOwners });
         const winners = results.map((r) => {
-          const amountUi = Number(r.amountRaw) / 10 ** stock.decimals;
+          const amountUi = Number(r.amountRaw) / 10 ** payStock.decimals;
           const share = totalPlanRaw > 0n ? Number(r.amountRaw) / Number(totalPlanRaw) : 0;
           return {
             owner: r.owner,
@@ -289,7 +309,7 @@ async function main() {
             signature: r.signature,
           };
         });
-        tracker.recordDispense({ stock, solSpent: swap.spentLamports / LAMPORTS_PER_SOL, winners });
+        tracker.recordDispense({ stock: payStock, solSpent: swap.spentLamports / LAMPORTS_PER_SOL, winners });
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         logger.error(`Dispense failed: ${msg}`);
