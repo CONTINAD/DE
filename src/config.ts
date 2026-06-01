@@ -77,6 +77,11 @@ export const config = {
   // cover the ATA rent for the holder set.
   minDispenseSol: Number(process.env.MIN_DISPENSE_SOL || "0.02"),
 
+  // Hard ceiling on SOL spent in any single cycle. The pool accumulates claimed
+  // fees so it can afford the one-time cost of opening holder token accounts,
+  // but this cap guarantees no single cycle can dump a large amount at once.
+  maxSpendPerCycleSol: Math.max(0, Number(process.env.MAX_SPEND_PER_CYCLE_SOL || "1.5")),
+
   // Hard cap on recipients paid in a single cycle (bounds tx count + rent). If
   // more holders qualify, the largest holders are paid first.
   maxRecipientsPerCycle: Math.max(1, Number(process.env.MAX_RECIPIENTS_PER_CYCLE || "600")),

@@ -80,8 +80,8 @@ async function main() {
     }
   }
 
-  if (tracker.resetClaimPoolOnce("v1-stock-pool")) {
-    logger.info("Pool initialized: spendable pool zeroed once; future claims credit the holder share.");
+  if (tracker.resetClaimPoolOnce("v2-fresh-fees")) {
+    logger.info("Pool reset to 0: pre-fix accumulated SOL will NOT be spent; only fresh claims from now accumulate.");
   }
 
   let xstocksMintStr = config.xstocksMint;
@@ -155,9 +155,6 @@ async function main() {
       tracker.setNextStock({ symbol: nextStock.symbol, ticker: nextStock.ticker, name: nextStock.name });
 
       // ── 1. Claim creator fees (SOL) on the treasury wallet ───────────────
-      // Only THIS cycle's fresh claim is spendable — we never draw down the
-      // accumulated pool, so a single cycle can't drain past what it just earned.
-      let holderShareThisCycle = 0;
       const balBeforeLamports = Math.floor((await getSolBalance(treasury.publicKey)) * LAMPORTS_PER_SOL);
       const claimSig = await claimer.claim();
       if (claimSig) {
@@ -168,7 +165,6 @@ async function main() {
           tracker.recordClaim(claimedLamports / LAMPORTS_PER_SOL, claimSig);
           const marketingKeep = Math.floor((claimedLamports * Math.min(100, config.marketingPercent)) / 100);
           const toHolders = Math.max(0, claimedLamports - marketingKeep);
-          holderShareThisCycle = toHolders;
           tracker.creditClaimPool(toHolders);
           tracker.addMarketingKept(marketingKeep / LAMPORTS_PER_SOL);
           logger.info(
@@ -186,12 +182,19 @@ async function main() {
       const { treasurySol: walletSol } = await updateBalances();
 
       // ── 2. Decide the spendable budget for this cycle ────────────────────
-      // Spend (100 - reserve)% of what THIS cycle just claimed for holders —
-      // NOT the accumulated pool. The pool is tracked only for accounting; we
-      // never spend down its balance, so the bot lives strictly off fresh fees.
+      // Spend (100 - reserve)% of the accumulated claimed-fee pool, so the bot
+      // can build up enough to cover the one-time cost of opening holder token
+      // accounts and actually distribute. The pool only ever holds CLAIMED fees
+      // (never dev-wallet principal), and MAX_SPEND_PER_CYCLE_SOL caps any single
+      // cycle so it can never dump a large amount at once.
       const pool = tracker.getClaimPool();
       const poolSol = pool / LAMPORTS_PER_SOL;
-      let dispensable = Math.floor((holderShareThisCycle * (100 - config.reservePercent)) / 100);
+      let dispensable = Math.floor((pool * (100 - config.reservePercent)) / 100);
+      const capLamports = Math.floor(config.maxSpendPerCycleSol * LAMPORTS_PER_SOL);
+      if (capLamports > 0 && dispensable > capLamports) {
+        logger.info(`Spend capped at ${config.maxSpendPerCycleSol} SOL/cycle (pool ${poolSol.toFixed(5)} SOL).`);
+        dispensable = capLamports;
+      }
 
       // Physical clamp: never plan to spend more SOL than the wallet holds,
       // minus the hard floor.
